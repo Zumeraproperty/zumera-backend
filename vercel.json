@@ -1,0 +1,9 @@
+{
+    "functions": {
+      "api/**/*.js": {
+        "runtime": "nodejs12.x",
+        "memory": 1024
+      }
+    }
+  }
+  
