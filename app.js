@@ -6,6 +6,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 const bodyParser = require('body-parser')
 
+
+
 // express middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
@@ -22,31 +24,31 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
 }).catch(err => console.log(err))
 // mongoose.connection()
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello world</h1>')
-})
+// app.get('/', (req, res) => {
+//   res.send('<h1>Hello world</h1>')
+// })
 
-// Register new user
-app.post('/add-user', (req, res) => {
-  const {name, password} = req.body;
-  const newUser = new Users({
-    name,
-    password,
-  })
-  res.json({ message: 'Data received successfully' });
-  newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
-});
+// // Register new user
+// app.post('/add-user', (req, res) => {
+//   const {name, password} = req.body;
+//   const newUser = new Users({
+//     name,
+//     password,
+//   })
+//   res.json({ message: 'Data received successfully' });
+//   newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
+// });
 
-// Get all users
-app.get('/all-users', (req, res) => {
- const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
-  console.log(allUsers)
-})
+// // Get all users
+// app.get('/all-users', (req, res) => {
+//  const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
+//   console.log(allUsers)
+// })
 
-// Delete user
-app.get('/all-users', (req, res) => {
-  Users.findByIdAndDelete().then(result => res.send(result)).catch((err) => console.log(err))
-})
+// // Delete user
+// app.get('/all-users', (req, res) => {
+//   Users.findByIdAndDelete().then(result => res.send(result)).catch((err) => console.log(err))
+// })
 
 // register subscribers
 app.post('/subscribers', (req, res) => {
@@ -56,7 +58,7 @@ app.post('/subscribers', (req, res) => {
     email,
   })
   console.log(subscriber)
-  res.json({ message: 'Data received successfully' });
+  res.json({ message: subscriber });
   subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
