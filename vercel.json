@@ -1,0 +1,5 @@
+{
+    "routes": [
+      { "src": "app.js", "dest": "path/to/serverless-function.js" }
+    ]
+  }

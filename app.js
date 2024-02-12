@@ -24,20 +24,20 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
 }).catch(err => console.log(err))
 // mongoose.connection()
 
-app.get('/', (req, res) => {
+app.get('/', async  (req, res) => {
   res.send('<h1>Hello world</h1>')
 })
 
 // // Register new user
-// app.post('/add-user', (req, res) => {
-//   const {name, password} = req.body;
-//   const newUser = new Users({
-//     name,
-//     password,
-//   })
-//   res.json({ message: 'Data received successfully' });
-//   newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
-// });
+app.post('/add-user', (req, res) => {
+  const {name, password} = req.body;
+  const newUser = new Users({
+    name,
+    password,
+  })
+  res.json({ message: 'Data received successfully' });
+  newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
+});
 
 // // Get all users
 // app.get('/all-users', (req, res) => {
@@ -51,16 +51,16 @@ app.get('/', (req, res) => {
 // })
 
 // register subscribers
-app.post('/subscribers', (req, res) => {
-  const {name, email} = req.body;
-  const subscriber = new Subscriber({
-    name,
-    email,
-  })
-  console.log(subscriber)
-  res.json({ message: subscriber });
-  subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
-});
+// app.post('/subscribers', (req, res) => {
+//   const {name, email} = req.body;
+//   const subscriber = new Subscriber({
+//     name,
+//     email,
+//   })
+//   console.log(subscriber)
+//   res.json({ message: subscriber });
+//   subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
+// });
 
 // get all subscribers
 // app.get('/get-all-subscribers', (req, res){
