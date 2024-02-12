@@ -40,10 +40,10 @@ app.post('/add-user', (req, res) => {
 });
 
 // // Get all users
-// app.get('/all-users', (req, res) => {
-//  const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
-//   console.log(allUsers)
-// })
+app.get('/all-users', (req, res) => {
+  const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
+  console.log(allUsers)
+})
 
 // // Delete user
 // app.get('/all-users', (req, res) => {
