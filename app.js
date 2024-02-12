@@ -27,37 +27,37 @@ app.get('/', (req, res) => {
 })
 
 // Register new user
-// app.post('/add-user', (req, res) => {
-//   const {name, password} = req.body;
-//   const newUser = new Users({
-//     name,
-//     password,
-//   })
-//   res.json({ message: 'Data received successfully' });
-//   newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
-// });
+app.post('/add-user', (req, res) => {
+  const {name, password} = req.body;
+  const newUser = new Users({
+    name,
+    password,
+  })
+  res.json({ message: 'Data received successfully' });
+  newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
+});
 
 // Get all users
-// app.get('/all-users', (req, res) => {
-//  const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
-//   console.log(allUsers)
-// })
+app.get('/all-users', (req, res) => {
+ const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
+  console.log(allUsers)
+})
 
 // Delete user
-// app.get('/all-users', (req, res) => {
-//   Users.findByIdAndDelete().then(result => res.send(result)).catch((err) => console.log(err))
-// })
+app.get('/all-users', (req, res) => {
+  Users.findByIdAndDelete().then(result => res.send(result)).catch((err) => console.log(err))
+})
 
 // register subscribers
-// app.post('/subscribers', (req, res) => {
-//   const {name, email} = req.body;
-//   const subscriber = new Subscriber({
-//     name,
-//     email,
-//   })
-//   res.json({ message: 'Data received successfully' });
-//   subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
-// });
+app.post('/subscribers', (req, res) => {
+  const {name, email} = req.body;
+  const subscriber = new Subscriber({
+    name,
+    email,
+  })
+  res.json({ message: 'Data received successfully' });
+  subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
+});
 
 // get all subscribers
 // app.get('', (req, res){
