@@ -62,7 +62,7 @@ app.post('/subscribers', (req, res) => {
 
 // get all subscribers
 app.get('/get-all-subscribers', (req, res) => {
-  const allSubscribers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
+  const allSubscribers =  Subscriber.find().then(result => res.send(result)).catch((err) => console.log(err))
 })
 // Create blog post
 // app.get('create-blog', (req, res) => {
