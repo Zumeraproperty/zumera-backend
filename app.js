@@ -24,9 +24,9 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
 }).catch(err => console.log(err))
 // mongoose.connection()
 
-// app.get('/', (req, res) => {
-//   res.send('<h1>Hello world</h1>')
-// })
+app.get('/', (req, res) => {
+  res.send('<h1>Hello world</h1>')
+})
 
 // // Register new user
 // app.post('/add-user', (req, res) => {
