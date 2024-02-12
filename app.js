@@ -23,7 +23,7 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
 // mongoose.connection()
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
+  res.send('<h1>Hello world</h1>')
 })
 
 // Register new user
@@ -55,12 +55,13 @@ app.post('/subscribers', (req, res) => {
     name,
     email,
   })
+  console.log(subscriber)
   res.json({ message: 'Data received successfully' });
   subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
 // get all subscribers
-// app.get('', (req, res){
+// app.get('/get-all-subscribers', (req, res){
 
 // })
 
