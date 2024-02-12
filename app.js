@@ -75,3 +75,5 @@ app.post('/subscribers', (req, res) => {
 //     password,
 //   })
 // })
+
+module.exports = app;
