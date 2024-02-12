@@ -1,26 +1,74 @@
-const express = require('express')
-const mongoose = require('mongoose')
+const express = require('express');
+const mongoose = require('mongoose');
+const Users = require('./models/newUser')
 const Subscriber = require('./models/subscribers')
+const app = express();
+const port = process.env.PORT || 5000;
+const bodyParser = require('body-parser')
 
-const connectionpOptions = {
-  dbName: `subscriber-database`,
-}
+// express middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json())
+// app.use(bodyParser.json())
 
-const mongodb = "mongodb+srv://zumera_admin:admin12345@cluster0.jfqncxu.mongodb.net/subscriber-database?retryWrites=true&w=majority"
-mongoose.connect(mongodb, connectionpOptions).then(() => console.log('connect')
-).catch(err => console.log(err))
+// connecting mongodb with mongoose
+const connectionOptions = { dbName: `user-database` };
+const mongodb = 'mongodb+srv://zumera_admin:admin12345@cluster0.jfqncxu.mongodb.net/?retryWrites=true&w=majority';
+mongoose.connect(mongodb, connectionOptions).then(() => { 
+  console.log('connected'),
+  app.listen(port, () => {
+    console.log("Server is running on PORT: ", port)
+  })
+}).catch(err => console.log(err))
+// mongoose.connection()
 
-const app = express()
-const port = 8080
-
-app.get('https://postman-rest-api-learner.glitch.me/subscriber', (req, res) => {
-    const subscriber = new Subscriber({
-        name: 'Cornelius',
-        email: 'cornelius@gmail.com'
-    });
-    subscriber2.save().then(result => res.send(result)).catch(err => console.log(err))
+app.get('/', (req, res) => {
+  res.send('Hello World!')
 })
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+// Register new user
+app.post('/add-user', (req, res) => {
+  const {name, password} = req.body;
+  const newUser = new Users({
+    name,
+    password,
+  })
+  res.json({ message: 'Data received successfully' });
+  newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
+});
+
+// Get all users
+app.get('/all-users', (req, res) => {
+ const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
+  console.log(allUsers)
 })
+
+// Delete user
+app.get('/all-users', (req, res) => {
+  Users.findByIdAndDelete().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+// register subscribers
+app.post('/subscribers', (req, res) => {
+  const {name, email} = req.body;
+  const subscriber = new Subscriber({
+    name,
+    email,
+  })
+  res.json({ message: 'Data received successfully' });
+  subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
+});
+
+// get all subscribers
+app.get('', (req, res){
+
+})
+
+// Create blog post
+// app.get('create-blog', (req, res) => {
+//   const {title, content} = req.body;
+//   const newUser = new Users({
+//     name,
+//     password,
+//   })
+// })
