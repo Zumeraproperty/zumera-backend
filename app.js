@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Users = require('./models/newUser')
 const Subscriber = require('./models/subscribers')
-const app = express.Router();
+const app = express();
 const port = process.env.PORT || 5000;
 const bodyParser = require('body-parser')
 
