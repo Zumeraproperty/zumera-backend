@@ -35,14 +35,12 @@ app.post('/add-user', (req, res) => {
     name,
     password,
   })
-  res.json({ message: 'Data received successfully' });
   newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
 // // Get all users
 app.get('/all-users', (req, res) => {
   const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
-  console.log(allUsers)
 })
 
 // // Delete user
@@ -51,22 +49,21 @@ app.get('/all-users', (req, res) => {
 // })
 
 // register subscribers
-// app.post('/subscribers', (req, res) => {
-//   const {name, email} = req.body;
-//   const subscriber = new Subscriber({
-//     name,
-//     email,
-//   })
-//   console.log(subscriber)
-//   res.json({ message: subscriber });
-//   subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
-// });
+app.post('/subscribers', (req, res) => {
+  const {name, email} = req.body;
+  const subscriber = new Subscriber({
+    name,
+    email,
+  })
+  console.log(subscriber)
+  res.json({ message: subscriber });
+  subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
+});
 
 // get all subscribers
-// app.get('/get-all-subscribers', (req, res){
-
-// })
-
+app.get('/get-all-subscribers', (req, res) => {
+  const allSubscribers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
 // Create blog post
 // app.get('create-blog', (req, res) => {
 //   const {title, content} = req.body;
@@ -75,5 +72,3 @@ app.get('/all-users', (req, res) => {
 //     password,
 //   })
 // })
-
-module.exports = app;
