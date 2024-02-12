@@ -25,7 +25,7 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
 // mongoose.connection()
 
 app.get('/', async  (req, res) => {
-  res.send('<h1>Hello world</h1>')
+  res.send('<h1>Yes to live</h1>')
 })
 
 // // Register new user
