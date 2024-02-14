@@ -1,17 +1,27 @@
+const mongoose = require('mongoose')
 const express = require('express');
-const mongoose = require('mongoose');
-const Users = require('./models/newUser')
-const Subscriber = require('./models/subscribers')
+const bodyParser = require('body-parser')
+const session = require('express-session')
+const bcrypt = require('bcryptjs')
+
+
+const Users = require('./models/users')
+const Subscribers = require('./models/subscribers');
+const Blogs = require('./models/blogPost');
 const app = express();
 const port = process.env.PORT || 5000;
-const bodyParser = require('body-parser')
-
 
 
 // express middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json())
-app.use(bodyParser.json())
+app.use(express.json());
+app.use(bodyParser.json());
+
+app.use(session({
+  secret: 'my_secret_key',
+  resave: false,
+  saveUninitialized: false
+}));
 
 // connecting mongodb with mongoose
 const connectionOptions = { dbName: `user-database` };
@@ -22,54 +32,109 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
     console.log("Server is running on PORT: ", port)
   })
 }).catch(err => console.log(err))
-// mongoose.connection()
 
-app.get('/', async  (req, res) => {
-  res.send('<h1>Welcome to zumera</h1>')
+app.get('/', (req, res) => {
+  res.send("<h1>hello</h1>")
 })
 
 // // Register new user
 app.post('/add-user', (req, res) => {
-  const {name, password} = req.body;
-  const newUser = new Users({
-    name,
-    password,
+  const {email, password} = req.body;
+
+  // Check if email already exists
+  // const existingUser = Users.findOne({ email });
+  // if (existingUser) {
+  //   return res.status(400).json({ message: 'Email already exists' });
+  // }
+
+  // register user
+  const user = new Users({
+    email,
+    password
   })
-  res.json({ message: newUser });
-  newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
+
+  user.save().then(result => res.send(result)).catch((err) => console.log(err))
+  res.redirect('/dashboard')
 });
+
+// delete User
+app.delete('/all-users/:id', (req, res) => {
+  const id = req.params.id;
+  Users.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
+  res.redirect('/dashboard')
+})
 
 // // Get all users
 app.get('/all-users', (req, res) => {
   const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
 })
 
-// // Delete user
-// app.get('/all-users', (req, res) => {
-//   Users.findByIdAndDelete().then(result => res.send(result)).catch((err) => console.log(err))
-// })
-
 // register subscribers
-// app.post('/subscribers', (req, res) => {
-//   const {name, email} = req.body;
-//   const subscriber = new Subscriber({
-//     name,
-//     email,
-//   })
-//   console.log(subscriber)
-//   res.json({ message: subscriber });
-//   subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
-// });
+app.post('/subscriber', (req, res) => {
+  const {name, email} = req.body;
+  const subscriber = new Subscribers({
+    name,
+    email
+  })
+  res.redirect('/dashboard')
+  subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
+});
+
 
 // get all subscribers
-// app.get('/get-all-subscribers', (req, res) => {
-//   const allSubscribers =  Subscriber.find().then(result => res.send(result)).catch((err) => console.log(err))
-// })
+app.get('/get-all-subscribers', (req, res) => {
+  const allSubscribers =  Subscribers.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
 // Create blog post
-// app.get('create-blog', (req, res) => {
-//   const {title, content} = req.body;
-//   const newUser = new Users({
-//     name,
-//     password,
-//   })
-// })
+app.post('/create-blog', (req, res) => {
+  const {title, content} = req.body;
+  const blog = new Blogs({
+    title,
+    content
+  })
+  res.redirect('/dashboard')
+  blog.save().then(result => res.send(result)).catch((err) => console.log(err))
+});
+
+// Get all blogs
+app.get('/blog', (req, res) => {
+  const allBlogs =  Blogs.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+// Update blog post
+app.put('/blog/:id', (req, res) => {
+  const id = req.params.id;
+  Blogs.findByIdAndUpdate(id, req.body).then(result => res.send(result)).catch((err) => console.log(err))
+  res.redirect('/dashboard')
+})
+
+// Delete blog post
+app.delete('/blog/:id', (req, res) => {
+  const id = req.params.id;
+  Blogs.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
+  res.redirect('/dashboard')
+})
+
+
+
+// Correct Duplicate if subscriber email already exist
+// const alertErr = (err) => {
+//   let errors = {name: '', email: ''}
+//   if (err.code === 11000) {
+//     errors.email = 'This email already exist'
+//   }
+// }
+
+// Login 
+// app.post('/login', (req, res) => {
+//   const { username, password } = req.body;
+//   const user = users.find(u => u.username === username);
+
+//   if (!user || !bcrypt.compareSync(password, user.password)) {
+//     res.status(401).json({ message: 'Invalid credentials' });
+//   } else {
+//     req.session.userId = user.id;
+//     res.json({ message: 'Login successful' });
+//   }
+// });
