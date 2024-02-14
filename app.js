@@ -35,6 +35,7 @@ app.post('/add-user', (req, res) => {
     name,
     password,
   })
+  res.json({ message: newUser });
   newUser.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
