@@ -36,10 +36,6 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-app.get('/', (req, res) => {
-  res.send("<h1>hello</h1>")
-})
-
 // // Register new user
 const alertError = (err) => {
   let errors = {name: '', email: '', password: ''}
@@ -145,26 +141,3 @@ app.delete('/blog/:id', (req, res) => {
   Blogs.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
   res.redirect('/dashboard')
 })
-
-
-
-// Correct Duplicate if subscriber email already exist
-// const alertErr = (err) => {
-//   let errors = {name: '', email: ''}
-//   if (err.code === 11000) {
-//     errors.email = 'This email already exist'
-//   }
-// }
-
-// Login 
-// app.post('/login', (req, res) => {
-//   const { username, password } = req.body;
-//   const user = users.find(u => u.username === username);
-
-//   if (!user || !bcrypt.compareSync(password, user.password)) {
-//     res.status(401).json({ message: 'Invalid credentials' });
-//   } else {
-//     req.session.userId = user.id;
-//     res.json({ message: 'Login successful' });
-//   }
-// });
