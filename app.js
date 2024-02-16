@@ -2,12 +2,13 @@ const mongoose = require('mongoose')
 const express = require('express');
 const bodyParser = require('body-parser')
 const session = require('express-session')
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 
 
 const Users = require('./models/users')
 const Subscribers = require('./models/subscribers');
 const Blogs = require('./models/blogPost');
+const User = require('./models/users');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -32,30 +33,59 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
     console.log("Server is running on PORT: ", port)
   })
 }).catch(err => console.log(err))
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.get('/', (req, res) => {
   res.send("<h1>hello</h1>")
 })
 
 // // Register new user
-app.post('/add-user', (req, res) => {
-  const {email, password} = req.body;
+const alertError = (err) => {
+  let errors = {name: '', email: '', password: ''}
 
-  // Check if email already exists
-  // const existingUser = Users.findOne({ email });
-  // if (existingUser) {
-  //   return res.status(400).json({ message: 'Email already exists' });
-  // }
+  if (err.message.includes('User validation failed')){
+    Object.values(err.errors).forEach(({ properties }) => {
+      errors[properties.path] = properties.message
+    })
+  }
+  return errors
+}
 
-  // register user
-  const user = new Users({
-    email,
-    password
-  })
+app.post('/add-user', async (req, res) => {
+  const {name, email, password} = req.body;
 
-  user.save().then(result => res.send(result)).catch((err) => console.log(err))
-  res.redirect('/dashboard')
+ try {
+  const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+
+  const user = await User.create({ name, email, password});
+  res.status(201).json({ user });
+ }catch (error) {
+  let errors = alertError(error)
+  res.status(400).json({errors})
+ }
 });
+
+// Login route
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Compare passwords
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+  res.redirect('/dashboard');
+});
+
 
 // delete User
 app.delete('/all-users/:id', (req, res) => {
