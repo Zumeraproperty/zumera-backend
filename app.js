@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const bcrypt = require('bcrypt')
+const cors = require('cors')
 
 
 const Users = require('./models/users')
@@ -11,13 +12,17 @@ const Blogs = require('./models/blogPost');
 const User = require('./models/users');
 const app = express();
 const port = process.env.PORT || 5000;
-
+const corsOptions = {
+  origin: 'http://localhost:5000/',
+  credentials: true,
+  optionSuccessStatus:200
+}
 
 // express middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
-
+app.use(cors(corsOptions))
 app.use(session({
   secret: 'my_secret_key',
   resave: false,
