@@ -13,18 +13,13 @@ const Blogs = require('./models/blogPost');
 const User = require('./models/users');
 const app = express();
 const port = process.env.PORT || 5000;
-const corsOptions = {
-    origin: 'http://localhost:5000/',
-    crediential: true,
-    optionSuccessStatus: 200
-}
 
 // express middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(cors(corsOptions))
+app.use(cors())
 app.use(session({
   secret: 'my_secret_key',
   resave: false,
