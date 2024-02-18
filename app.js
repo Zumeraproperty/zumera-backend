@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const session = require('express-session')
 const bcrypt = require('bcrypt')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
 
 
 const Users = require('./models/users')
@@ -13,15 +14,16 @@ const User = require('./models/users');
 const app = express();
 const port = process.env.PORT || 5000;
 const corsOptions = {
-  origin: 'http://localhost:5000/',
-  credentials: true,
-  optionSuccessStatus:200
+    origin: 'http://localhost:5000/',
+    crediential: true,
+    optionSuccessStatus: 200
 }
 
 // express middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(cors(corsOptions))
 app.use(session({
   secret: 'my_secret_key',
@@ -40,6 +42,19 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
 }).catch(err => console.log(err))
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+
+app.get('/set-cookies', (req, res) => {
+  res.cookie('username', 'Tony')
+  res.cookie('isAuthenticated', true)
+  res.send('cookies are set')
+})
+app.get('/get-cookies', (req, res) => {
+  const cookies = req.cookies
+  console.log(cookies)
+  res.json(cookies)
+})
+
+
 
 // // Register new user
 const alertError = (err) => {
