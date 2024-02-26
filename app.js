@@ -5,12 +5,16 @@ const session = require('express-session')
 const bcrypt = require('bcrypt')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const multer = require('multer')
+const nodemailer = require('nodemailer')
 
 
+const upload = multer({ dest: 'uploads/'})
 const Users = require('./models/users')
 const Subscribers = require('./models/subscribers');
 const Blogs = require('./models/blogPost');
 const User = require('./models/users');
+const Career = require('./models/career');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -49,7 +53,12 @@ app.get('/get-cookies', (req, res) => {
   res.json(cookies)
 })
 
-
+app.use((req, res) => {
+  res.send('PAGE NOT FOUND')
+})
+app.use('/dashoard', (req, res) => {
+  res.redirect('/dashboard/overview')
+})
 
 // // Register new user
 const alertError = (err) => {
@@ -63,7 +72,7 @@ const alertError = (err) => {
   return errors
 }
 
-app.post('/add-user', async (req, res) => {
+app.post('/add-user', upload.none(), async (req, res) => {
   const {name, email, password} = req.body;
 
  try {
@@ -81,7 +90,7 @@ app.post('/add-user', async (req, res) => {
 });
 
 // Login route
-app.post('/login', async (req, res) => {
+app.post('/login', upload.none(), async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -111,7 +120,7 @@ app.get('/all-users', (req, res) => {
 })
 
 // register subscribers
-app.post('/subscriber', (req, res) => {
+app.post('/subscriber', upload.none(), (req, res) => {
   const {name, email} = req.body;
   const subscriber = new Subscribers({
     name,
@@ -119,6 +128,26 @@ app.post('/subscriber', (req, res) => {
   })
   res.redirect('/dashboard')
   subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
+
+  const transporter = nodemailer.createTransport({
+    host: "smtp.forwardemail.net",
+    port: 465,
+    secure: true,
+    auth: {
+      // TODO: replace `user` and `pass` values from <https://forwardemail.net>
+      user: "REPLACE-WITH-YOUR-ALIAS@YOURDOMAIN.COM",
+      pass: "REPLACE-WITH-YOUR-GENERATED-PASSWORD",
+    },
+  });
+
+  // send mail with defined transport object
+  const info = transporter.sendMail({
+    from: '"Fred Foo 👻" <foo@example.com>', // sender address
+    to: "bar@example.com, baz@example.com", // list of receivers
+    subject: "Hello ✔", // Subject line
+    text: "Hello world?", // plain text body
+    html: "<b>Hello world?</b>", // html body
+  });
 });
 
 
@@ -128,13 +157,16 @@ app.get('/get-all-subscribers', (req, res) => {
 })
 
 // Create blog post
-app.post('/create-blog', (req, res) => {
+app.post('/create-blog', upload.single('blogImg'), (req, res, next) => {
   const {title, content} = req.body;
+  const image = req.file
+  console.log(image)
   const blog = new Blogs({
     title,
-    content
+    content,
+    image
   })
-  res.redirect('/dashboard')
+  res.redirect('/dashboard/overview')
   blog.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
@@ -154,5 +186,39 @@ app.put('/blog/:id', (req, res) => {
 app.delete('/blog/:id', (req, res) => {
   const id = req.params.id;
   Blogs.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
+  res.redirect('/dashboard')
+})
+
+// Post Job on career page
+app.post('/career', upload.single('resume'), (req, res, next) => {
+  const { name, email, address, phone } = req.body
+  const resume = req.file
+
+  const career = new career({
+    name, 
+    email, 
+    address, 
+    phone
+  })
+  res.redirect('/dashboard')
+  career.save().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+// Get all JObs
+app.get('/career', (req, res) => {
+  const allCareer =  Career.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+// Update Job post
+app.put('/career/:id', (req, res) => {
+  const id = req.params.id;
+  Career.findByIdAndUpdate(id, req.body).then(result => res.send(result)).catch((err) => console.log(err))
+  res.redirect('/dashboard')
+})
+
+// Delete Job post
+app.delete('/career/:id', (req, res) => {
+  const id = req.params.id;
+  Career.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
   res.redirect('/dashboard')
 })
