@@ -157,14 +157,15 @@ app.get('/get-all-subscribers', (req, res) => {
 })
 
 // Create blog post
-app.post('/create-blog', upload.single('blogImg'), (req, res, next) => {
-  const {title, content} = req.body;
-  const image = req.file
-  console.log(image)
+app.post('/create-blog', upload.array('blogImg'), (req, res, next) => {
+  const {blogTitle, blogText, blogUrl} = req.body;
+  const file = req.file
+
   const blog = new Blogs({
-    title,
-    content,
-    image
+    blogTitle,
+    blogText,
+    blogUrl,
+    file
   })
   res.redirect('/dashboard/overview')
   blog.save().then(result => res.send(result)).catch((err) => console.log(err))
