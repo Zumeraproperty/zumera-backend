@@ -3,23 +3,14 @@ const Schema = mongoose.Schema;
 
 
 const blogSchema = new Schema({
-    blogTitle: {
-        type: String,
-        required: true
-    },
-    blogText: {
-        type: String,
-        required: true
-    },
-    blogImg: {
-        type: String,
-    },
-    blogVideo: {
-        type: String,
-    },
-    blogUrl: {
-        type: String,
-    },
+    blogTitle: String,
+
+    blogText:  String,
+
+    blogFiles: String,
+    
+    blogLink: String,
+    
     createdAt: {
         type: Date,
         default: Date.now

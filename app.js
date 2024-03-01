@@ -6,10 +6,22 @@ const bcrypt = require('bcrypt')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const multer = require('multer')
+const path = require('path');
 const nodemailer = require('nodemailer')
 
 
-const upload = multer({ dest: 'uploads/'})
+// Set up Multer for file uploads
+// const storage = multer.diskStorage({
+//   destination: function(req, file, cb) {
+//     cb(null, 'uploads/');
+//   },
+//   filename: function(req, file, cb) {
+//     cb(null, Date.now() + '-' + file.originalname);
+//   },
+// });
+// const upload = multer({ storage: storage})
+
+// All models
 const Users = require('./models/users')
 const Subscribers = require('./models/subscribers');
 const Blogs = require('./models/blogPost');
@@ -21,7 +33,6 @@ const port = process.env.PORT || 5000;
 // express middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(cors())
 app.use(session({
@@ -29,6 +40,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
+
 
 // connecting mongodb with mongoose
 const connectionOptions = { dbName: `user-database` };
@@ -39,6 +51,7 @@ mongoose.connect(mongodb, connectionOptions).then(() => {
     console.log("Server is running on PORT: ", port)
   })
 }).catch(err => console.log(err))
+
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
@@ -56,9 +69,9 @@ app.get('/get-cookies', (req, res) => {
 app.use((req, res) => {
   res.send('PAGE NOT FOUND')
 })
-app.use('/dashoard', (req, res) => {
-  res.redirect('/dashboard/overview')
-})
+// app.use('/dashoard', (req, res) => {
+//   res.redirect('/dashboard/overview')
+// })
 
 // // Register new user
 const alertError = (err) => {
@@ -72,7 +85,7 @@ const alertError = (err) => {
   return errors
 }
 
-app.post('/add-user', upload.none(), async (req, res) => {
+app.post('/add-user', async (req, res) => {
   const {name, email, password} = req.body;
 
  try {
@@ -90,7 +103,7 @@ app.post('/add-user', upload.none(), async (req, res) => {
 });
 
 // Login route
-app.post('/login', upload.none(), async (req, res) => {
+app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -115,12 +128,18 @@ app.delete('/all-users/:id', (req, res) => {
 })
 
 // // Get all users
-app.get('/all-users', (req, res) => {
-  const allUsers =  Users.find().then(result => res.send(result)).catch((err) => console.log(err))
+app.get('/all-users', async (req, res) => {
+  try{
+    const allUsers =  await Users.find()
+    res.send(allUsers)
+  } catch (err) {
+    console.log(err)
+  }
+
 })
 
 // register subscribers
-app.post('/subscriber', upload.none(), (req, res) => {
+app.post('/subscriber', (req, res) => {
   const {name, email} = req.body;
   const subscriber = new Subscribers({
     name,
@@ -157,17 +176,17 @@ app.get('/get-all-subscribers', (req, res) => {
 })
 
 // Create blog post
-app.post('/create-blog', upload.array('blogImg'), (req, res, next) => {
-  const {blogTitle, blogText, blogUrl} = req.body;
-  const file = req.file
+app.post('/create-blog', (req, res, next) => {
+  const {blogTitle, blogText, blogLink} = req.body;
+  const blogFiles = req.files.map(file => file.path);
 
   const blog = new Blogs({
     blogTitle,
     blogText,
-    blogUrl,
-    file
+    blogFiles,
+    blogLink
   })
-  res.redirect('/dashboard/overview')
+  // res.redirect('/dashboard/overview')
   blog.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
@@ -191,7 +210,7 @@ app.delete('/blog/:id', (req, res) => {
 })
 
 // Post Job on career page
-app.post('/career', upload.single('resume'), (req, res, next) => {
+app.post('/career', (req, res, next) => {
   const { name, email, address, phone } = req.body
   const resume = req.file
 
