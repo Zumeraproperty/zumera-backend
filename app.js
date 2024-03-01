@@ -66,9 +66,9 @@ app.get('/get-cookies', (req, res) => {
   res.json(cookies)
 })
 
-app.use((req, res) => {
-  res.send('PAGE NOT FOUND')
-})
+// app.use((req, res) => {
+//   res.send('PAGE NOT FOUND')
+// })
 // app.use('/dashoard', (req, res) => {
 //   res.redirect('/dashboard/overview')
 // })
@@ -100,6 +100,9 @@ app.post('/add-user', async (req, res) => {
   let errors = alertError(error)
   res.status(400).json({errors})
  }
+
+ 
+ user.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
 // Login route
