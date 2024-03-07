@@ -5,21 +5,10 @@ const session = require('express-session')
 const bcrypt = require('bcrypt')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const multer = require('multer')
 const path = require('path');
 const nodemailer = require('nodemailer')
 
 
-// Set up Multer for file uploads
-// const storage = multer.diskStorage({
-//   destination: function(req, file, cb) {
-//     cb(null, 'uploads/');
-//   },
-//   filename: function(req, file, cb) {
-//     cb(null, Date.now() + '-' + file.originalname);
-//   },
-// });
-// const upload = multer({ storage: storage})
 
 // All models
 const Users = require('./models/users')
@@ -27,6 +16,7 @@ const Subscribers = require('./models/subscribers');
 const Blogs = require('./models/blogPost');
 const User = require('./models/users');
 const Career = require('./models/career');
+const Subscriber = require('./models/subscribers');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -142,15 +132,22 @@ app.get('/all-users', async (req, res) => {
 })
 
 // register subscribers
-app.post('/subscriber', (req, res) => {
-  const {name, email} = req.body;
-  const subscriber = new Subscribers({
-    name,
-    email
-  })
-  res.redirect('/dashboard')
-  subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
-
+app.post('/subscriber', async(req, res) => {
+  try {
+      const existingUser = await Subscriber.findOne({ email: req.body.email });
+      if (existingUser) {
+        return res.status(400).json({ messageErr: 'Email already exists' });
+      }
+    const {name, email} = req.body;
+    const subscriber = new Subscribers({
+      name,
+      email
+    })
+    subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
+  } catch (err) {
+    // console.error(err);
+    res.status(500).json({ messageErr: 'Server error' });
+  }
   const transporter = nodemailer.createTransport({
     host: "smtp.forwardemail.net",
     port: 465,
@@ -176,22 +173,38 @@ app.post('/subscriber', (req, res) => {
 // get all subscribers
 app.get('/get-all-subscribers', (req, res) => {
   const allSubscribers =  Subscribers.find().then(result => res.send(result)).catch((err) => console.log(err))
+  // console.log(allSubscribers)
 })
 
 // Create blog post
-app.post('/create-blog', (req, res, next) => {
-  const {blogTitle, blogText, blogLink} = req.body;
-  const blogFiles = req.files.map(file => file.path);
+// app.post('/create-blog', (req, res, next) => {
+//   const {blogTitle, blogText, blogLink} = req.body;
+//   const blogFiles = req.files.map(file => file.path);
 
-  const blog = new Blogs({
-    blogTitle,
-    blogText,
-    blogFiles,
-    blogLink
-  })
-  // res.redirect('/dashboard/overview')
-  blog.save().then(result => res.send(result)).catch((err) => console.log(err))
-});
+//   const blog = new Blogs({
+//     blogTitle,
+//     blogText,
+//     blogFiles,
+//     blogLink
+//   })
+//   // res.redirect('/dashboard/overview')
+//   blog.save().then(result => res.send(result)).catch((err) => console.log(err))
+// });
+
+// app.post('/create-blog', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
+//   try {
+//     const blog = new Data({
+//       text: req.body.text,
+//       image: req.files['image'] ? req.files['image'][0].path : null,
+//       video: req.files['video'] ? req.files['video'][0].path : null
+//     });
+//     await newData.save();
+//     res.status(201).json({ message: 'Data saved successfully' });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// });
 
 // Get all blogs
 app.get('/blog', (req, res) => {
