@@ -3,30 +3,15 @@ const Schema = mongoose.Schema;
 
 
 const salesExecutiveSchema = new Schema({
-    title: {
-        type: String,
-        required: true
-    },
+    title: String,
 
-    description: {
-        type: String,
-        required: true
-    },
+    description: String,
 
-    role:{
-        type: String,
-        required: true
-    },
+    role: String,
 
-    requirements: {
-        type: String,
-        required: true
-    },
+    requirements: String,
 
-    benefits: {
-        type: String,
-        required: true
-    }
+    benefits: String,
 },{timestamps: true});
 
 
