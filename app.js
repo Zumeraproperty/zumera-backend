@@ -17,6 +17,15 @@ const Blogs = require('./models/blogPost');
 const User = require('./models/users');
 const Career = require('./models/career');
 const Subscriber = require('./models/subscribers');
+const AccountingAndFinance = require('./models/positions/accountingAndFinance');
+const ArchitectureAndDesign = require('./models/positions/architectureAndDesign');
+const CivilEngineering = require('./models/positions/civilEngineering');
+const CooperateAttorney = require('./models/positions/cooperateAttorney');
+const Hr = require('./models/positions/hr');
+const Operations = require('./models/positions/operations');
+const Procurement = require('./models/positions/procurement');
+const ProjectManagerExecutive = require('./models/positions/projectManagerExecutive');
+const SalesExecutive = require('./models/positions/salesExecutive');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -244,6 +253,178 @@ app.post('/career', (req, res, next) => {
 app.get('/career', (req, res) => {
   const allCareer =  Career.find().then(result => res.send(result)).catch((err) => console.log(err))
 })
+
+// all positions api
+app.post('/accounting-and-finance', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const accountingAndFinance = new AccountingAndFinance({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+
+  accountingAndFinance.save()
+  .then(result => res.send(result))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error saving data');
+  });
+})
+
+app.post('/architecture-and-design', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const architectureAndDesign = new ArchitectureAndDesign({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+
+  architectureAndDesign.save()
+  .then(result => res.send(result))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error saving data');
+  });
+})
+
+app.post('/civil-engineering', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const civilEngineering = new CivilEngineering({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+
+  civilEngineering.save()
+  .then(result => res.send(result))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error saving data');
+  });
+})
+
+app.post('/cooperate-attorney ', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const cooperateAttorney = new CooperateAttorney({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+
+  cooperateAttorney.save()
+  .then(result => res.send(result))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error saving data');
+  });
+})
+
+app.post('/hr', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const hr = new Hr({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+  hr.save()
+  .then(result => res.send(result))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error saving data');
+  });
+})
+
+app.post('/operations', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const operations = new Operations({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+
+  operations.save()
+  .then(result => res.send(result))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error saving data');
+  });
+})
+
+app.post('/procurement', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const procurement = new Procurement({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+
+  procurement.save()
+  .then(result => res.send(result))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error saving data');
+  });
+})
+
+app.post('/project-manager-executive', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const projectManagerExecutive = new ProjectManagerExecutive({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+
+  projectManagerExecutive.save()
+  .then(result => res.send(result))
+  .catch(err => {
+    console.error(err);
+    res.status(500).send('Error saving data');
+  });
+})
+
+app.post('/sales-executive', (req, res) => {
+  const { title, description, role, requirements, benefits } = req.body
+
+  const salesExecutive = new SalesExecutive({
+    title, 
+    description, 
+    role, 
+    requirements, 
+    benefits
+  })
+
+  salesExecutive.save()
+    .then(result => res.send(result))
+    .catch(err => {
+      console.error(err);
+      res.status(500).send('Error saving data');
+    });
+})
+
 
 // Update Job post
 app.put('/career/:id', (req, res) => {
