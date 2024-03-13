@@ -235,24 +235,20 @@ app.delete('/blog/:id', (req, res) => {
 })
 
 // Post Job on career page
-app.post('/career', (req, res, next) => {
-  const { name, email, address, phone } = req.body
-  const resume = req.file
+// app.post('/career', (req, res, next) => {
+//   const { name, email, address, phone } = req.body
+//   const resume = req.file
 
-  const career = new career({
-    name, 
-    email, 
-    address, 
-    phone
-  })
-  res.redirect('/dashboard')
-  career.save().then(result => res.send(result)).catch((err) => console.log(err))
-})
+//   const career = new career({
+//     name, 
+//     email, 
+//     address, 
+//     phone
+//   })
+//   res.redirect('/dashboard')
+//   career.save().then(result => res.send(result)).catch((err) => console.log(err))
+// })
 
-// Get all JObs
-app.get('/career', (req, res) => {
-  const allCareer =  Career.find().then(result => res.send(result)).catch((err) => console.log(err))
-})
 
 // all positions api
 app.post('/accounting-and-finance', (req, res) => {
@@ -424,6 +420,67 @@ app.post('/sales-executive', (req, res) => {
       res.status(500).send('Error saving data');
     });
 })
+
+// getting data for different jobs api
+app.get('/all-accounting-and-finance', (req, res) => {
+  allAandF = AccountingAndFinance.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+app.get('/all-architecture-and-design', (req, res) => {
+  allAandD =  ArchitectureAndDesign.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+app.get('/all-civil-engineering', (req, res) => {
+  allCE = CivilEngineering.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+app.get('/all-cooperate-attorney ', (req, res) => {
+  CandA = CooperateAttorney.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+app.get('/all-hr', (req, res) => {
+  AllHr = Hr.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+app.get('/all-operations', (req, res) => {
+  AllOperations = Operations.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+app.get('/all-procurement', (req, res) => {
+  AllProcurement = Procurement.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+app.get('/all-project-manager-executive', (req, res) => {
+  PandMandE = ProjectManagerExecutive.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+app.get('/all-sales-executive', (req, res) => {
+  SandE = SalesExecutive.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+
+// Get all JObs from different departments in one page
+app.get('/career', async (req, res) => {
+  try {
+    const data = {
+      AccountingAndFinance: await AccountingAndFinance.find(),
+      ArchitectureAndDesign: await ArchitectureAndDesign.find(),
+      CivilEngineering: await CivilEngineering.find(),
+      CooperateAttorney: await CooperateAttorney.find(),
+      Hr: await Hr.find(),
+      Operations: await Operations.find(),
+      Procurement: await Procurement.find(),
+      ProjectManagerExecutive: await ProjectManagerExecutive.find(),
+      SalesExecutive: await SalesExecutive.find()
+    };
+
+    res.send(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 
 // Update Job post
