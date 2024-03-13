@@ -152,6 +152,7 @@ app.post('/subscriber', async(req, res) => {
       name,
       email
     })
+    res.setHeader('Access-Control-Allow-Origin', '*');
     subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
   } catch (err) {
     // console.error(err);
