@@ -155,7 +155,6 @@ app.post('/subscriber', async(req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
   } catch (err) {
-    // console.error(err);
     res.status(500).json({ messageErr: 'Server error' });
   }
   const transporter = nodemailer.createTransport({
@@ -183,7 +182,6 @@ app.post('/subscriber', async(req, res) => {
 // get all subscribers
 app.get('/get-all-subscribers', (req, res) => {
   const allSubscribers =  Subscribers.find().then(result => res.send(result)).catch((err) => console.log(err))
-  // console.log(allSubscribers)
 })
 
 // Create blog post
@@ -482,18 +480,50 @@ app.get('/career', async (req, res) => {
   }
 });
 
+// Delete Request
+app.delete('/career/:id', async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    await Promise.all([
+      AccountingAndFinance.findByIdAndDelete(id),
+      ArchitectureAndDesign.findByIdAndDelete(id),
+      CivilEngineering.findByIdAndDelete(id),
+      CooperateAttorney.findByIdAndDelete(id),
+      Hr.findByIdAndDelete(id),
+      Operations.findByIdAndDelete(id),
+      Procurement.findByIdAndDelete(id),
+      ProjectManagerExecutive.findByIdAndDelete(id),
+      SalesExecutive.findByIdAndDelete(id)
+    ]);
 
-// Update Job post
-app.put('/career/:id', (req, res) => {
-  const id = req.params.id;
-  Career.findByIdAndUpdate(id, req.body).then(result => res.send(result)).catch((err) => console.log(err))
-  res.redirect('/dashboard')
-})
+    res.status(200).send('Deleted successfully');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-// Delete Job post
-app.delete('/career/:id', (req, res) => {
-  const id = req.params.id;
-  Career.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
-  res.redirect('/dashboard')
-})
+// Update Job Post
+app.put('/career/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await Promise.all([
+      AccountingAndFinance.findByIdAndUpdate(id, req.body.accountingAndFinance),
+      ArchitectureAndDesign.findByIdAndUpdate(id, req.body.architectureAndDesign),
+      CivilEngineering.findByIdAndUpdate(id, req.body.civilEngineering),
+      CooperateAttorney.findByIdAndUpdate(id, req.body.cooperateAttorney),
+      Hr.findByIdAndUpdate(id, req.body.hr),
+      Operations.findByIdAndUpdate(id, req.body.operations),
+      Procurement.findByIdAndUpdate(id, req.body.procurement),
+      ProjectManagerExecutive.findByIdAndUpdate(id, req.body.projectManagerExecutive),
+      SalesExecutive.findByIdAndUpdate(id, req.body.salesExecutive)
+    ]);
+
+    res.status(200).send('Updated successfully');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});

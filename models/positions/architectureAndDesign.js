@@ -7,11 +7,10 @@ const architectureAndDesignSchema = new Schema({
 
     description: String,
 
-    role: String,
-
     requirements: String,
 
-    benefits: String,
+    skill: String,
+
     
 },{timestamps: true});
 

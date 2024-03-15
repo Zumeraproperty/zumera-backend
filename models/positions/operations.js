@@ -7,11 +7,10 @@ const operationsSchema = new Schema({
 
     description: String,
 
-    role: String,
-
     requirements: String,
+    
+    skill: String,
 
-    benefits: String,
 },{timestamps: true});
 
 
