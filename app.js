@@ -304,7 +304,7 @@ app.post('/civil-engineering', (req, res) => {
   });
 })
 
-app.post('/cooperate-attorney ', (req, res) => {
+app.post('/cooperate-attorney', (req, res) => {
   const { title, description, skill, requirements } = req.body
 
   const cooperateAttorney = new CooperateAttorney({
