@@ -251,14 +251,13 @@ app.delete('/blog/:id', (req, res) => {
 
 // all positions api
 app.post('/accounting-and-finance', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const accountingAndFinance = new AccountingAndFinance({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
 
   accountingAndFinance.save()
@@ -270,14 +269,13 @@ app.post('/accounting-and-finance', (req, res) => {
 })
 
 app.post('/architecture-and-design', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const architectureAndDesign = new ArchitectureAndDesign({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
 
   architectureAndDesign.save()
@@ -289,14 +287,13 @@ app.post('/architecture-and-design', (req, res) => {
 })
 
 app.post('/civil-engineering', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const civilEngineering = new CivilEngineering({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
 
   civilEngineering.save()
@@ -308,14 +305,13 @@ app.post('/civil-engineering', (req, res) => {
 })
 
 app.post('/cooperate-attorney ', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const cooperateAttorney = new CooperateAttorney({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
 
   cooperateAttorney.save()
@@ -327,14 +323,13 @@ app.post('/cooperate-attorney ', (req, res) => {
 })
 
 app.post('/hr', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const hr = new Hr({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
   hr.save()
   .then(result => res.send(result))
@@ -345,14 +340,13 @@ app.post('/hr', (req, res) => {
 })
 
 app.post('/operations', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const operations = new Operations({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
 
   operations.save()
@@ -364,14 +358,13 @@ app.post('/operations', (req, res) => {
 })
 
 app.post('/procurement', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const procurement = new Procurement({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
 
   procurement.save()
@@ -383,14 +376,13 @@ app.post('/procurement', (req, res) => {
 })
 
 app.post('/project-manager-executive', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const projectManagerExecutive = new ProjectManagerExecutive({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
 
   projectManagerExecutive.save()
@@ -402,14 +394,13 @@ app.post('/project-manager-executive', (req, res) => {
 })
 
 app.post('/sales-executive', (req, res) => {
-  const { title, description, role, requirements, benefits } = req.body
+  const { title, description, skill, requirements } = req.body
 
   const salesExecutive = new SalesExecutive({
     title, 
     description, 
-    role, 
-    requirements, 
-    benefits
+    skill, 
+    requirements
   })
 
   salesExecutive.save()
