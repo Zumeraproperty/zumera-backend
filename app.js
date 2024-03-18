@@ -27,7 +27,7 @@ const nodemailer = require('nodemailer')
 
 // const FormData = mongoose.model('FormData', formDataSchema);
 
-// // Set up Multer and Cloudinary storage
+// Set up Multer and Cloudinary storage
 // const storage = new CloudinaryStorage({
 //   cloudinary: cloudinary,
 //   params: {
