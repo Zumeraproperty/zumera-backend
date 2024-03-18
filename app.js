@@ -7,7 +7,9 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const path = require('path');
 const nodemailer = require('nodemailer')
-
+const multer = require('multer')
+const multerStorageCloudinary = require('multer-storage-cloudinary') 
+const cloudinary = require('cloudinary')
 
 
 // All models
