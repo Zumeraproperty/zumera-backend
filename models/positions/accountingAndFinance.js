@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 
 const accountingAndFinanceSchema = new Schema({
+
     title: String,
 
     description: String,

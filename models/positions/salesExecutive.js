@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 
 const salesExecutiveSchema = new Schema({
+    
     title: String,
 
     description: String,

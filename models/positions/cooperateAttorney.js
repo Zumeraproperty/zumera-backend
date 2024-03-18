@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 
 const cooperateAttorneySchema = new Schema({
+
     title: String,
 
     description: String,

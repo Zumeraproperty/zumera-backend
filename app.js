@@ -471,10 +471,9 @@ app.get('/career', async (req, res) => {
   }
 });
 
-// Delete Request
+// Delete Job Request
 app.delete('/career/:id', async (req, res) => {
   const { id } = req.params;
-
   try {
     await Promise.all([
       AccountingAndFinance.findByIdAndDelete(id),
@@ -498,18 +497,20 @@ app.delete('/career/:id', async (req, res) => {
 // Update Job Post
 app.put('/career/:id', async (req, res) => {
   const { id } = req.params;
+  const updateData = req.body[id]; // Use bracket notation to access the data for the specific ID
 
   try {
+    // Update the item with the specific ID using the updateData
     await Promise.all([
-      AccountingAndFinance.findByIdAndUpdate(id, req.body.accountingAndFinance),
-      ArchitectureAndDesign.findByIdAndUpdate(id, req.body.architectureAndDesign),
-      CivilEngineering.findByIdAndUpdate(id, req.body.civilEngineering),
-      CooperateAttorney.findByIdAndUpdate(id, req.body.cooperateAttorney),
-      Hr.findByIdAndUpdate(id, req.body.hr),
-      Operations.findByIdAndUpdate(id, req.body.operations),
-      Procurement.findByIdAndUpdate(id, req.body.procurement),
-      ProjectManagerExecutive.findByIdAndUpdate(id, req.body.projectManagerExecutive),
-      SalesExecutive.findByIdAndUpdate(id, req.body.salesExecutive)
+      AccountingAndFinance.findByIdAndUpdate(id, updateData),
+      ArchitectureAndDesign.findByIdAndUpdate(id, updateData),
+      CivilEngineering.findByIdAndUpdate(id, updateData),
+      CooperateAttorney.findByIdAndUpdate(id, updateData),
+      Hr.findByIdAndUpdate(id, updateData),
+      Operations.findByIdAndUpdate(id, updateData),
+      Procurement.findByIdAndUpdate(id, updateData),
+      ProjectManagerExecutive.findByIdAndUpdate(id, updateData),
+      SalesExecutive.findByIdAndUpdate(id, updateData)
     ]);
 
     res.status(200).send('Updated successfully');
