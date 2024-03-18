@@ -7,35 +7,7 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const path = require('path');
 const nodemailer = require('nodemailer')
-// const multer = require('multer');
-// const cloudinary = require('cloudinary').v2
-// const { CloudinaryStorage } = require('multer-storage-cloudinary')
 
-// Set up Cloudinary
-// cloudinary.config({
-//   cloud_name: 'dv3rvc1by',
-//   api_key: '773664589458118',
-//   api_secret: 'Ky7xcgcoDayEdTD3rmK1XIEXx6Y'
-// });
-
-// Define Schema
-// const formDataSchema = new mongoose.Schema({
-//   name: String,
-//   email: String,
-//   fileUrl: String // Store Cloudinary URL here
-// });
-
-// const FormData = mongoose.model('FormData', formDataSchema);
-
-// Set up Multer and Cloudinary storage
-// const storage = new CloudinaryStorage({
-//   cloudinary: cloudinary,
-//   params: {
-//     folder: 'Zumera',
-//     allowed_formats: ['jpg', 'png', 'pdf']
-//   }
-// });
-// const upload = multer({ storage: storage });
 
 
 // All models
@@ -127,6 +99,8 @@ app.post('/add-user', async (req, res) => {
   let errors = alertError(error)
   res.status(400).json({errors})
  }
+
+ 
  user.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
@@ -545,20 +519,3 @@ app.put('/career/:id', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
-
-// app.post('/upload', upload.single('file'), async (req, res) => {
-//   try {
-//     // Save form data to MongoDB
-//     const formData = new FormData({
-//       name: req.body.name,
-//       email: req.body.email,
-//       fileUrl: req.file.path // Cloudinary URL
-//     });
-//     await formData.save();
-//     res.send('File uploaded successfully');
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send('Server Error');
-//   }
-// });
