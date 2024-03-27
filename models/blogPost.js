@@ -3,19 +3,14 @@ const Schema = mongoose.Schema;
 
 
 const blogSchema = new Schema({
-    title: {
+    blogTitle: {
         type: String,
         required: true
     },
 
-    content: {
-        type: String,
-        required: true
-    },
+    blogText: String,
 
-    image: String,
-    
-    video: String,
+    url: String,
     
     createdAt: {
         type: Date,

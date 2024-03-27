@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 const mongoose = require('mongoose')
 const express = require('express');
 const bodyParser = require('body-parser')
@@ -9,8 +11,9 @@ const path = require('path');
 const nodemailer = require('nodemailer')
 const multer = require('multer')
 const multerStorageCloudinary = require('multer-storage-cloudinary') 
-const cloudinary = require('cloudinary')
-
+const cloudinary = require('./cloudinary/cloudinary')
+const upload = multer({ dest: 'uploads/' });
+  
 
 // All models
 const Users = require('./models/users')
@@ -33,7 +36,7 @@ const port = process.env.PORT || 5000;
 
 // express middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.json({limit: '10mb'}));
 app.use(cookieParser());
 app.use(cors())
 app.use(session({
@@ -186,70 +189,53 @@ app.get('/get-all-subscribers', (req, res) => {
   const allSubscribers =  Subscribers.find().then(result => res.send(result)).catch((err) => console.log(err))
 })
 
-// Create blog post
-// app.post('/create-blog', (req, res, next) => {
-//   const {blogTitle, blogText, blogLink} = req.body;
-//   const blogFiles = req.files.map(file => file.path);
-
-//   const blog = new Blogs({
-//     blogTitle,
-//     blogText,
-//     blogFiles,
-//     blogLink
-//   })
-//   // res.redirect('/dashboard/overview')
-//   blog.save().then(result => res.send(result)).catch((err) => console.log(err))
-// });
-
-// app.post('/create-blog', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), async (req, res) => {
-//   try {
-//     const blog = new Data({
-//       text: req.body.text,
-//       image: req.files['image'] ? req.files['image'][0].path : null,
-//       video: req.files['video'] ? req.files['video'][0].path : null
-//     });
-//     await newData.save();
-//     res.status(201).json({ message: 'Data saved successfully' });
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
+// Blog Post
+app.post('/upload', upload.single('file'), async (req, res) => {
+  const {image} = req.body
+  const blogImage = await cloudinary.uploader.upload(image,
+  {
+    upload_preset: 'blog_images',
+    // public_id: 'avatar',
+    allowed_formats: ['png', 'jpg', 'jpeg', 'svg', 'ico', 'jfif', 'webp'],
+  }, 
+  function(error, result) {
+    if(error){
+      console.log(error)
+    }
+    console.log(result) 
+  });
+  try {
+    res.status(200).json(blogImage)
+  } catch (error) {
+    console.log(error)
+  }
+  const blog = new FileModel({
+    name: req.file.originalname,
+    content: req.body.text,
+    cloudinaryUrl: result.secure_url
+  });
+  await blog.save();
+  res.json("Received")
+})
 
 // Get all blogs
-app.get('/blog', (req, res) => {
-  const allBlogs =  Blogs.find().then(result => res.send(result)).catch((err) => console.log(err))
-})
-
-// Update blog post
-app.put('/blog/:id', (req, res) => {
-  const id = req.params.id;
-  Blogs.findByIdAndUpdate(id, req.body).then(result => res.send(result)).catch((err) => console.log(err))
-  res.redirect('/dashboard')
-})
-
-// Delete blog post
-app.delete('/blog/:id', (req, res) => {
-  const id = req.params.id;
-  Blogs.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
-  res.redirect('/dashboard')
-})
-
-// Post Job on career page
-// app.post('/career', (req, res, next) => {
-//   const { name, email, address, phone } = req.body
-//   const resume = req.file
-
-//   const career = new career({
-//     name, 
-//     email, 
-//     address, 
-//     phone
-//   })
-//   res.redirect('/dashboard')
-//   career.save().then(result => res.send(result)).catch((err) => console.log(err))
+// app.get('/blog', (req, res) => {
+//   const allBlogs =  Blogs.find().then(result => res.send(result)).catch((err) => console.log(err))
 // })
 
+// Update blog post
+// app.put('/blog/:id', (req, res) => {
+//   const id = req.params.id;
+//   Blogs.findByIdAndUpdate(id, req.body).then(result => res.send(result)).catch((err) => console.log(err))
+//   res.redirect('/dashboard')
+// })
+
+// Delete blog post
+// app.delete('/blog/:id', (req, res) => {
+//   const id = req.params.id;
+//   Blogs.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
+//   res.redirect('/dashboard')
+// })
 
 // all positions api
 app.post('/accounting-and-finance', (req, res) => {
@@ -451,7 +437,7 @@ app.get('/all-sales-executive', (req, res) => {
 })
 
 
-// Get all JObs from different departments in one page
+// Get all Jobs from different departments in one page
 app.get('/career', async (req, res) => {
   try {
     const data = {
