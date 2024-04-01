@@ -1,5 +1,6 @@
 require("dotenv").config()
 
+const fs = require('fs')
 const mongoose = require('mongoose')
 const express = require('express');
 const bodyParser = require('body-parser')
@@ -31,6 +32,7 @@ const Operations = require('./models/positions/operations');
 const Procurement = require('./models/positions/procurement');
 const ProjectManagerExecutive = require('./models/positions/projectManagerExecutive');
 const SalesExecutive = require('./models/positions/salesExecutive');
+const Blog = require("./models/blogPost");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -190,52 +192,160 @@ app.get('/get-all-subscribers', (req, res) => {
 })
 
 // Blog Post
-app.post('/upload', upload.single('file'), async (req, res) => {
-  const {image} = req.body
-  const blogImage = await cloudinary.uploader.upload(image,
-  {
-    upload_preset: 'blog_images',
-    // public_id: 'avatar',
-    allowed_formats: ['png', 'jpg', 'jpeg', 'svg', 'ico', 'jfif', 'webp'],
-  }, 
-  function(error, result) {
-    if(error){
-      console.log(error)
-    }
-    console.log(result) 
-  });
+app.post('/upload', upload.array('files', 3), async (req, res) => {
   try {
-    res.status(200).json(blogImage)
+    const files = req.files;
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+
+    const cloudinaryUrls = [];
+    for (const file of files) {
+      try {
+        let uploadOptions = {
+          upload_preset: 'blog_media',
+          allowed_formats: ['png', 'jpg', 'jpeg', 'svg', 'ico', 'jfif', 'webp', 'mp4', 'mov', 'avi', 'flv', 'wmv'],
+        };
+
+        // Check if the file is an image or video and set upload options accordingly
+        if (file.mimetype.startsWith('image/')) {
+          uploadOptions.resource_type = 'image';
+        } else if (file.mimetype.startsWith('video/')) {
+          uploadOptions.resource_type = 'video';
+        }
+
+        const result = await cloudinary.uploader.upload(file.path, uploadOptions);
+        cloudinaryUrls.push(result.url);
+        // Delete the local file after uploading to Cloudinary
+        fs.unlinkSync(file.path);
+      } catch (error) {
+        console.log(error);
+        // Continue uploading other files even if one fails
+        return res.status(500).json({ error: 'Failed to upload one or more files' });
+      }
+    }
+
+    const blog = new Blog({
+      blogTitle: req.body.blogTitle,
+      blogText1: req.body.blogText1,
+      blogText2: req.body.blogText2,
+      blogText3: req.body.blogText3,
+      blogUrl1: req.body.blogUrl1,
+      blogUrl2: req.body.blogUrl2,
+      blogUrl3: req.body.blogUrl3,
+      cloudinaryUrls: cloudinaryUrls,
+    });
+
+    await blog.save();
+    res.status(200).json({ message: 'Files uploaded and blog entry created', blogId: blog._id });
   } catch (error) {
-    console.log(error)
+    console.log(error);
+    res.status(500).json({ error: 'Failed to upload files or save blog entry' });
   }
-  const blog = new FileModel({
-    name: req.file.originalname,
-    content: req.body.text,
-    cloudinaryUrl: result.secure_url
-  });
-  await blog.save();
-  res.json("Received")
-})
+});
 
-// Get all blogs
-// app.get('/blog', (req, res) => {
-//   const allBlogs =  Blogs.find().then(result => res.send(result)).catch((err) => console.log(err))
-// })
+// get all blogs
+app.get('/blogs', async (req, res) => {
+  try {
+    const blogs = await Blog.find();
+    res.status(200).json(blogs);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to retrieve blogs' });
+  }
+});
 
-// Update blog post
-// app.put('/blog/:id', (req, res) => {
-//   const id = req.params.id;
-//   Blogs.findByIdAndUpdate(id, req.body).then(result => res.send(result)).catch((err) => console.log(err))
-//   res.redirect('/dashboard')
-// })
+// get single blog
+app.get('/blogs/:id', async (req, res) => {
+  try {
+    const blogs = await Blog.find();
+    res.status(200).json(blogs);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to retrieve blogs' });
+  }
+});
 
 // Delete blog post
-// app.delete('/blog/:id', (req, res) => {
-//   const id = req.params.id;
-//   Blogs.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
-//   res.redirect('/dashboard')
-// })
+app.delete('/blogs/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Find the blog entry by ID
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog entry not found' });
+    }
+
+    // Delete the files from Cloudinary
+    for (const url of blog.cloudinaryUrls) {
+      const publicId = url.substring(url.lastIndexOf('/blog/') + 1, url.lastIndexOf('.'));
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    // Delete the blog entry from MongoDB
+    await Blog.findByIdAndDelete(id);
+
+    res.status(200).json({ message: 'Blog entry and files deleted successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to delete blog entry and files' });
+  }
+});
+
+// Update blog post
+app.put('/blogs/:id', upload.array('files', 3), async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog entry not found' });
+    }
+
+    // Delete existing files from Cloudinary
+    for (const url of blog.cloudinaryUrls) {
+      const publicId = url.substring(url.lastIndexOf('/blog/') + 1, url.lastIndexOf('.'));
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    // Upload new files to Cloudinary
+    const files = req.files;
+    const cloudinaryUrls = [];
+    for (const file of files) {
+      let uploadOptions = {
+        upload_preset: 'blog_media',
+        allowed_formats: ['png', 'jpg', 'jpeg', 'svg', 'ico', 'jfif', 'webp', 'mp4', 'mov', 'avi', 'flv', 'wmv'],
+      };
+
+      if (file.mimetype.startsWith('image/')) {
+        uploadOptions.resource_type = 'image';
+      } else if (file.mimetype.startsWith('video/')) {
+        uploadOptions.resource_type = 'video';
+      }
+
+      const result = await cloudinary.uploader.upload(file.path, uploadOptions);
+      cloudinaryUrls.push(result.url);
+      fs.unlinkSync(file.path);
+    }
+
+    // Update the blog entry with new data
+    blog.blogTitle = req.body.blogTitle;
+    blog.blogText1 = req.body.blogText1;
+    blog.blogText2 = req.body.blogText2;
+    blog.blogText3 = req.body.blogText3;
+    blog.blogUrl1 = req.body.blogUrl1;
+    blog.blogUrl2 = req.body.blogUrl2;
+    blog.blogUrl3 = req.body.blogUrl3;
+    blog.cloudinaryUrls = cloudinaryUrls;
+
+    await blog.save();
+    res.status(200).json({ message: 'Blog entry updated successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to update blog entry' });
+  }
+});
 
 // all positions api
 app.post('/accounting-and-finance', (req, res) => {
@@ -507,3 +617,165 @@ app.put('/career/:id', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+// different job application
+// app.post('/accounting-and-finance/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const accountingAndFinance = new AccountingAndFinance({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+
+//   accountingAndFinance.save()
+//   .then(result => res.send(result))
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500).send('Error saving data');
+//   });
+// })
+
+// app.post('/architecture-and-design/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const architectureAndDesign = new ArchitectureAndDesign({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+
+//   architectureAndDesign.save()
+//   .then(result => res.send(result))
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500).send('Error saving data');
+//   });
+// })
+
+// app.post('/civil-engineering/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const civilEngineering = new CivilEngineering({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+
+//   civilEngineering.save()
+//   .then(result => res.send(result))
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500).send('Error saving data');
+//   });
+// })
+
+// app.post('/cooperate-attorney/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const cooperateAttorney = new CooperateAttorney({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+
+//   cooperateAttorney.save()
+//   .then(result => res.send(result))
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500).send('Error saving data');
+//   });
+// })
+
+// app.post('/hr/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const hr = new Hr({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+//   hr.save()
+//   .then(result => res.send(result))
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500).send('Error saving data');
+//   });
+// })
+
+// app.post('/operations/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const operations = new Operations({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+
+//   operations.save()
+//   .then(result => res.send(result))
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500).send('Error saving data');
+//   });
+// })
+
+// app.post('/procurement/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const procurement = new Procurement({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+
+//   procurement.save()
+//   .then(result => res.send(result))
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500).send('Error saving data');
+//   });
+// })
+
+// app.post('/project-manager-executive/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const projectManagerExecutive = new ProjectManagerExecutive({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+
+//   projectManagerExecutive.save()
+//   .then(result => res.send(result))
+//   .catch(err => {
+//     console.error(err);
+//     res.status(500).send('Error saving data');
+//   });
+// })
+
+// app.post('/sales-executive/:id', (req, res) => {
+//   const { title, description, skill, requirements } = req.body
+
+//   const salesExecutive = new SalesExecutive({
+//     title, 
+//     description, 
+//     skill, 
+//     requirements
+//   })
+
+//   salesExecutive.save()
+//     .then(result => res.send(result))
+//     .catch(err => {
+//       console.error(err);
+//       res.status(500).send('Error saving data');
+//     });
+// })

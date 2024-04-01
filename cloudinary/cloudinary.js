@@ -8,7 +8,4 @@ cloudinary.config({
   });
   
 
-  module.exports = cloudinary
-
-  // import {v2 as cloudinary} from 'cloudinary';
-          
+  module.exports = cloudinary 
