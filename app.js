@@ -33,6 +33,7 @@ const Procurement = require('./models/positions/procurement');
 const ProjectManagerExecutive = require('./models/positions/projectManagerExecutive');
 const SalesExecutive = require('./models/positions/salesExecutive');
 const Blog = require("./models/blogPost");
+const Application = require('./models/application')
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -660,188 +661,47 @@ app.get('/career/:id', async (req, res) => {
 
 
 // recieving job application
-app.post('/career/:id/applicant', (req, res) => {
-  const { id } = req.params;
-  
-  const { name, email, address, experience, letter } = req.body; // Extract the form data from the request body
-  
-  console.log(req.body)
-  // Assuming `AAndDApplicants` is the Mongoose model
-  const aAndDApplicants = new AAndDApplicants({
-    name,
-    email,
-    address,
-    experience,
-    letter
-  });
+app.post('/career/apply', upload.single('pdf'), async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
 
-  aAndDApplicants.save()
-    .then(result => res.send(result))
-    .catch(err => {
-      console.error(err);
-      res.status(500).send('Error saving data');
+    const uploadOptions = {
+      upload_preset: 'blog_media',
+      folder: 'applicants',
+      allowed_formats: ['pdf']
+    };
+
+    const result = await cloudinary.uploader.upload(file.path, uploadOptions);
+    const pdfUrl = result.secure_url;
+
+    const application = new Application({
+      name: req.body.name,
+      email: req.body.email,
+      address: req.body.address,
+      dob: req.body.dob,
+      experience: req.body.experience,
+      letter: req.body.letter,
+      resume: pdfUrl
     });
+
+    await application.save();
+    res.status(200).json({ message: 'Your application has been received', applicationId: application._id });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to upload file or save application' });
+  }
 });
 
-// different job application
-// app.post('/career/:id/applicant', (req, res) => {
-//   const { name, email, address, dob, experience } = req.body
-
-//   const aAndDApplicants = new AAndDApplicants({
-//     name, 
-//     email, 
-//     address, 
-//     dob, 
-//     experience
-//   })
-
-//   aAndDApplicants.save()
-//   .then(result => res.send(result))
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500).send('Error saving data');
-//   });
-// })
-
-// app.post('/architecture-and-design/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
-
-//   const architectureAndDesign = new ArchitectureAndDesign({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
-//   })
-
-//   architectureAndDesign.save()
-//   .then(result => res.send(result))
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500).send('Error saving data');
-//   });
-// })
-
-// app.post('/civil-engineering/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
-
-//   const civilEngineering = new CivilEngineering({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
-//   })
-
-//   civilEngineering.save()
-//   .then(result => res.send(result))
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500).send('Error saving data');
-//   });
-// })
-
-// app.post('/cooperate-attorney/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
-
-//   const cooperateAttorney = new CooperateAttorney({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
-//   })
-
-//   cooperateAttorney.save()
-//   .then(result => res.send(result))
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500).send('Error saving data');
-//   });
-// })
-
-// app.post('/hr/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
-
-//   const hr = new Hr({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
-//   })
-//   hr.save()
-//   .then(result => res.send(result))
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500).send('Error saving data');
-//   });
-// })
-
-// app.post('/operations/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
-
-//   const operations = new Operations({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
-//   })
-
-//   operations.save()
-//   .then(result => res.send(result))
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500).send('Error saving data');
-//   });
-// })
-
-// app.post('/procurement/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
-
-//   const procurement = new Procurement({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
-//   })
-
-//   procurement.save()
-//   .then(result => res.send(result))
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500).send('Error saving data');
-//   });
-// })
-
-// app.post('/project-manager-executive/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
-
-//   const projectManagerExecutive = new ProjectManagerExecutive({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
-//   })
-
-//   projectManagerExecutive.save()
-//   .then(result => res.send(result))
-//   .catch(err => {
-//     console.error(err);
-//     res.status(500).send('Error saving data');
-//   });
-// })
-
-// app.post('/sales-executive/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
-
-//   const salesExecutive = new SalesExecutive({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
-//   })
-
-//   salesExecutive.save()
-//     .then(result => res.send(result))
-//     .catch(err => {
-//       console.error(err);
-//       res.status(500).send('Error saving data');
-//     });
-// })
+// fetch all job apllications
+app.get('/career/applications', async (req, res) => {
+  try {
+    const applications = await Application.find();
+    res.status(200).json(applications);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to retrieve job applications' });
+  }
+});
