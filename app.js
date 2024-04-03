@@ -629,19 +629,29 @@ app.get('/career/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
-    const data = {
-      AccountingAndFinance: await AccountingAndFinance.findById(id),
-      ArchitectureAndDesign: await ArchitectureAndDesign.findById(id),
-      CivilEngineering: await CivilEngineering.findById(id),
-      CooperateAttorney: await CooperateAttorney.findById(id),
-      Hr: await Hr.findById(id),
-      Operations: await Operations.findById(id),
-      Procurement: await Procurement.findById(id),
-      ProjectManagerExecutive: await ProjectManagerExecutive.findById(id),
-      SalesExecutive: await SalesExecutive.findById(id)
-    };
+    const departments = [
+      'AccountingAndFinance',
+      'ArchitectureAndDesign',
+      'CivilEngineering',
+      'CooperateAttorney',
+      'Hr',
+      'Operations',
+      'Procurement',
+      'ProjectManagerExecutive',
+      'SalesExecutive'
+    ];
 
-    res.send(data);
+    let responseData = {};
+
+    for (let department of departments) {
+      const data = await mongoose.model(department).findById(id);
+      if (data) {
+        responseData[department] = data;
+        break; // Exit the loop if data is found for the department
+      }
+    }
+
+    res.send(responseData);
   } catch (err) {
     console.error(err);
     res.status(500).send('Internal Server Error');
@@ -649,6 +659,7 @@ app.get('/career/:id', async (req, res) => {
 });
 
 
+// recieving job application
 app.post('/career/:id/applicant', (req, res) => {
   const { id } = req.params;
   
