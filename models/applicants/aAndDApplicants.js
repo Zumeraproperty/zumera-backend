@@ -1,24 +1,13 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
+const applicantSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  address: String,
+  dob: Date,
+  experience: String
+});
 
-const architectureAndDesignSchema = new Schema({
+const AAndDApplicants = mongoose.model('AAndDApplicants', applicantSchema);
 
-    name: String,
-
-    email: String,
-
-    address: String,
-
-    birth: String,
-
-    experience: String,
-
-    resume: String,
-
-    
-},{timestamps: true});
-
-
-const ArchitectureAndDesign = mongoose.model('ArchitectureAndDesign', architectureAndDesignSchema)
-module.exports = ArchitectureAndDesign;
+module.exports = AAndDApplicants;

@@ -257,14 +257,20 @@ app.get('/blogs', async (req, res) => {
 
 // get single blog
 app.get('/blogs/:id', async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const blogs = await Blog.find();
-    res.status(200).json(blogs);
+    const blog = await Blog.findById(id);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+    res.status(200).json(blog);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'Failed to retrieve blogs' });
+    res.status(500).json({ error: 'Failed to retrieve blog' });
   }
 });
+
 
 // Delete blog post
 app.delete('/blogs/:id', async (req, res) => {
@@ -618,18 +624,67 @@ app.put('/career/:id', async (req, res) => {
   }
 });
 
-// different job application
-// app.post('/accounting-and-finance/:id', (req, res) => {
-//   const { title, description, skill, requirements } = req.body
+// sinlge job post
+app.get('/career/:id', async (req, res) => {
+  const { id } = req.params;
 
-//   const accountingAndFinance = new AccountingAndFinance({
-//     title, 
-//     description, 
-//     skill, 
-//     requirements
+  try {
+    const data = {
+      AccountingAndFinance: await AccountingAndFinance.findById(id),
+      ArchitectureAndDesign: await ArchitectureAndDesign.findById(id),
+      CivilEngineering: await CivilEngineering.findById(id),
+      CooperateAttorney: await CooperateAttorney.findById(id),
+      Hr: await Hr.findById(id),
+      Operations: await Operations.findById(id),
+      Procurement: await Procurement.findById(id),
+      ProjectManagerExecutive: await ProjectManagerExecutive.findById(id),
+      SalesExecutive: await SalesExecutive.findById(id)
+    };
+
+    res.send(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+app.post('/career/:id/applicant', (req, res) => {
+  const { id } = req.params;
+  
+  const { name, email, address, experience, letter } = req.body; // Extract the form data from the request body
+  
+  console.log(req.body)
+  // Assuming `AAndDApplicants` is the Mongoose model
+  const aAndDApplicants = new AAndDApplicants({
+    name,
+    email,
+    address,
+    experience,
+    letter
+  });
+
+  aAndDApplicants.save()
+    .then(result => res.send(result))
+    .catch(err => {
+      console.error(err);
+      res.status(500).send('Error saving data');
+    });
+});
+
+// different job application
+// app.post('/career/:id/applicant', (req, res) => {
+//   const { name, email, address, dob, experience } = req.body
+
+//   const aAndDApplicants = new AAndDApplicants({
+//     name, 
+//     email, 
+//     address, 
+//     dob, 
+//     experience
 //   })
 
-//   accountingAndFinance.save()
+//   aAndDApplicants.save()
 //   .then(result => res.send(result))
 //   .catch(err => {
 //     console.error(err);
