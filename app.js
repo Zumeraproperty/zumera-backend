@@ -736,6 +736,12 @@ app.delete('/application/:id', async (req, res) => {
   try {
     const id = req.params.id;
     const deletedApplication = await Applied.findByIdAndDelete(id);
+
+    for (const url of blog.cloudinaryUrls) {
+      const publicId = url.substring(url.lastIndexOf('/applicants/') + 1, url.lastIndexOf('.'));
+      await cloudinary.uploader.destroy(publicId);
+    }
+    
     if (!deletedApplication) {
       return res.status(404).json({ error: 'Application not found' });
     }
