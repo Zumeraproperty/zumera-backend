@@ -706,4 +706,42 @@ app.get('/application', async (req, res) => {
   }
 });
 
+// getting single applicant details
+app.get('/application/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    // Check if the id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
+
+    const application = await Applied.findById(id);
+
+    // Check if the application exists
+    if (!application) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+
+    res.status(200).json(application);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to retrieve application' });
+  }
+});
+
+
 // delete single applicant
+app.delete('/application/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deletedApplication = await Applied.findByIdAndDelete(id);
+    if (!deletedApplication) {
+      return res.status(404).json({ error: 'Application not found' });
+    }
+    res.status(200).json({ message: 'Application deleted successfully' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to delete job application' });
+  }
+});
