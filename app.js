@@ -21,6 +21,7 @@ const Users = require('./models/users')
 const Subscribers = require('./models/subscribers');
 const Blogs = require('./models/blogPost');
 const User = require('./models/users');
+const Applied = require("./models/applied");
 const Career = require('./models/career');
 const Subscriber = require('./models/subscribers');
 const AccountingAndFinance = require('./models/positions/accountingAndFinance');
@@ -33,7 +34,6 @@ const Procurement = require('./models/positions/procurement');
 const ProjectManagerExecutive = require('./models/positions/projectManagerExecutive');
 const SalesExecutive = require('./models/positions/salesExecutive');
 const Blog = require("./models/blogPost");
-const Application = require('./models/application')
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -677,7 +677,7 @@ app.post('/career/apply', upload.single('pdf'), async (req, res) => {
     const result = await cloudinary.uploader.upload(file.path, uploadOptions);
     const pdfUrl = result.secure_url;
 
-    const application = new Application({
+    const applied = new Applied({
       name: req.body.name,
       email: req.body.email,
       address: req.body.address,
@@ -687,8 +687,8 @@ app.post('/career/apply', upload.single('pdf'), async (req, res) => {
       resume: pdfUrl
     });
 
-    await application.save();
-    res.status(200).json({ message: 'Your application has been received', applicationId: application._id });
+    await applied.save();
+    res.status(200).json({ message: 'Your application has been received'});
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to upload file or save application' });
@@ -696,12 +696,14 @@ app.post('/career/apply', upload.single('pdf'), async (req, res) => {
 });
 
 // fetch all job apllications
-app.get('/career/applications', async (req, res) => {
+app.get('/application', async (req, res) => {
   try {
-    const applications = await Application.find();
+    const applications = await Applied.find();
     res.status(200).json(applications);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Failed to retrieve job applications' });
   }
 });
+
+// delete single applicant

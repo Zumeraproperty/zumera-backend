@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 
-const applicationSchema = new Schema({
+const appliedSchema = new Schema({
 
     name: String,
 
@@ -21,5 +21,5 @@ const applicationSchema = new Schema({
 },{timestamps: true});
 
 
-const Application = mongoose.model('Application', applicationSchema)
-module.exports = Application;
+const Applied = mongoose.model('Applied', appliedSchema)
+module.exports = Applied;
