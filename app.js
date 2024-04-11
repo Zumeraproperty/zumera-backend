@@ -167,7 +167,7 @@ app.post('/subscriber', async (req, res) => {
       secure: true,
       auth: {
         user: "corneliusedos@gmail.com",
-        pass: "",
+        pass: "Cornelius1997.",
       },
     });
     const info = await transporter.sendMail({
