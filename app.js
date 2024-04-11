@@ -149,41 +149,39 @@ app.get('/all-users', async (req, res) => {
 })
 
 // register subscribers
-app.post('/subscriber', async(req, res) => {
+app.post('/subscriber', async (req, res) => {
   try {
-      const existingUser = await Subscriber.findOne({ email: req.body.email });
-      if (existingUser) {
-        return res.status(400).json({ messageErr: 'Email already exists' });
-      }
-    const {name, email} = req.body;
-    const subscriber = new Subscribers({
-      name,
-      email
-    })
+    const existingUser = await Subscriber.findOne({ email: req.body.email });
+    if (existingUser) {
+      return res.status(400).json({ messageErr: 'Email already exists' });
+    }
+    const { name, email } = req.body;
+    const subscriber = new Subscriber({ name, email });
+    await subscriber.save();
     res.setHeader('Access-Control-Allow-Origin', '*');
-    subscriber.save().then(result => res.send(result)).catch((err) => console.log(err))
+    res.send(subscriber);
+
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "corneliusedos@gmail.com",
+        pass: "",
+      },
+    });
+    const info = await transporter.sendMail({
+      from: '"Zumera" <corneliusedos@gmail.com>',
+      to: email,
+      subject: "Welcome to Zumera!",
+      text: `Dear ${name},\n\nWelcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.\n\nWelcome to the Zumera Tribe!\n\nWarm regards,\nThe Zumera Team`,
+      html: `<p>Dear ${name},</p><p>Welcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.</p><p>Welcome to the Zumera Tribe!</p><p>Warm regards,<br/>The Zumera Team</p>`,
+    });
+    console.log("Message sent: %s", info.messageId);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ messageErr: 'Server error' });
   }
-  const transporter = nodemailer.createTransport({
-    host: "smtp.forwardemail.net",
-    port: 465,
-    secure: true,
-    auth: {
-      // TODO: replace `user` and `pass` values from <https://forwardemail.net>
-      user: "REPLACE-WITH-YOUR-ALIAS@YOURDOMAIN.COM",
-      pass: "REPLACE-WITH-YOUR-GENERATED-PASSWORD",
-    },
-  });
-
-  // send mail with defined transport object
-  const info = transporter.sendMail({
-    from: '"Fred Foo 👻" <foo@example.com>', // sender address
-    to: "bar@example.com, baz@example.com", // list of receivers
-    subject: "Hello ✔", // Subject line
-    text: "Hello world?", // plain text body
-    html: "<b>Hello world?</b>", // html body
-  });
 });
 
 
