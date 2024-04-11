@@ -149,6 +149,16 @@ app.get('/all-users', async (req, res) => {
 })
 
 // register subscribers
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: "corneliusedos@gmail.com",
+    pass: "Cornelius1997.",
+  },
+});
+
 app.post('/subscriber', async (req, res) => {
   try {
     const existingUser = await Subscriber.findOne({ email: req.body.email });
@@ -161,15 +171,6 @@ app.post('/subscriber', async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.send(subscriber);
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: "corneliusedos@gmail.com",
-        pass: "Cornelius1997.",
-      },
-    });
     const info = await transporter.sendMail({
       from: '"Zumera" <corneliusedos@gmail.com>',
       to: email,
@@ -183,6 +184,7 @@ app.post('/subscriber', async (req, res) => {
     res.status(500).json({ messageErr: 'Server error' });
   }
 });
+
 
 
 // get all subscribers
