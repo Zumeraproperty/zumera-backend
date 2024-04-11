@@ -182,7 +182,7 @@ app.post('/subscriber', async (req, res) => {
     console.error(err);
     res.status(500).json({ messageErr: 'Server error' });
   }
-});
+});klewnkewjkew
 
 
 // get all subscribers
