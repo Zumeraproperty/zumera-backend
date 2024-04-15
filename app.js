@@ -6,6 +6,7 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const path = require('path');
@@ -73,12 +74,72 @@ app.get('/get-cookies', (req, res) => {
   res.json(cookies)
 })
 
+// Routing to different pages
+app.use(express.static(path.join(__dirname, 'zumera-tower/build')));
+
 // app.use((req, res) => {
 //   res.send('PAGE NOT FOUND')
-// })
-// app.use('/dashoard', (req, res) => {
-//   res.redirect('/dashboard/overview')
-// })
+// }) 
+
+// Define route to serve the React index page
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'zumera-tower/build', 'index.html'));
+});
+
+// Login route
+// app.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+
+//   const user = await User.findOne({ email });
+//   if (!user) {
+//     return res.status(404).json({ message: 'User not found' });
+//   }
+
+//   // Compare passwords
+//   const passwordMatch = await bcrypt.compare(password, user.password);
+//   if (!passwordMatch) {
+//     return res.status(401).json({ message: 'Invalid credentials' });
+//   }
+//   res.redirect('/dashboard/overview');
+// });
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const passwordMatch = await bcrypt.compare(password, user.password);
+  if (!passwordMatch) {
+    return res.status(401).json({ message: 'Invalid credentials' });
+  }
+
+  const token = jwt.sign({ userId: user._id }, 'your_secret_key');
+  res.json({ token });
+  res.json({ token, redirectUrl: '/dashboard/overview' });
+});
+
+function authMiddleware(req, res, next) {
+  const token = req.header('Authorization');
+  if (!token) {
+    return res.status(401).json({ message: 'Access denied' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, 'your_secret_key');
+    req.userId = decoded.userId;
+    next();
+  } catch (error) {
+    res.status(400).json({ message: 'Invalid token' });
+  }
+}
+
+app.get('/dashboard/overview', authMiddleware, (req, res) => {
+  res.sendFile(path.join(__dirname, 'zumera-tower/build/dashboard/overview.html'));
+});
+
+
 
 // // Register new user
 const alertError = (err) => {
@@ -112,29 +173,11 @@ app.post('/add-user', async (req, res) => {
  user.save().then(result => res.send(result)).catch((err) => console.log(err))
 });
 
-// Login route
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  // Compare passwords
-  const passwordMatch = await bcrypt.compare(password, user.password);
-  if (!passwordMatch) {
-    return res.status(401).json({ message: 'Invalid credentials' });
-  }
-  res.redirect('/dashboard');
-});
-
-
 // delete User
 app.delete('/all-users/:id', (req, res) => {
   const id = req.params.id;
   Users.findByIdAndDelete(id).then(result => res.send(result)).catch((err) => console.log(err))
-  res.redirect('/dashboard')
+  res.redirect('/dashboard/overview')
 })
 
 // // Get all users
@@ -752,3 +795,4 @@ app.delete('/application/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete job application' });
   }
 });
+
