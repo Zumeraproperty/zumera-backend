@@ -39,7 +39,7 @@ const port = process.env.PORT || 5000;
 
 // express middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json({limit: '10mb'}));
+app.use(express.json({limit: '20mb'}));
 app.use(cookieParser());
 app.use(cors())
 app.use(session({
@@ -194,6 +194,7 @@ app.get('/get-all-subscribers', (req, res) => {
 
 // Blog Post
 app.post('/upload', upload.array('files', 3), async (req, res) => {
+  console.log("joy")
   try {
     const files = req.files;
     if (!files || files.length === 0) {
@@ -661,7 +662,7 @@ app.get('/career/:id', async (req, res) => {
 
 
 // recieving job application
-app.post('/career/apply', upload.single('pdf'), async (req, res) => {
+app.post('/apply', upload.single('pdf'), async (req, res) => {
   try {
     const file = req.file;
     if (!file) {
