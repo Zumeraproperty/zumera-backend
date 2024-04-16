@@ -77,10 +77,6 @@ app.get('/get-cookies', (req, res) => {
 // Routing to different pages
 app.use(express.static(path.join(__dirname, 'zumera-tower/build')));
 
-// app.use((req, res) => {
-//   res.send('PAGE NOT FOUND')
-// }) 
-
 // Define route to serve the React index page
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'zumera-tower/build', 'index.html'));
