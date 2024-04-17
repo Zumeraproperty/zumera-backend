@@ -75,12 +75,12 @@ app.get('/get-cookies', (req, res) => {
 })
 
 // Routing to different pages
-app.use(express.static(path.join(__dirname, 'zumera-tower/build')));
+// app.use(express.static(path.join(__dirname, 'zumera-tower/build')));
 
 // Define route to serve the React index page
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'zumera-tower/build', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'zumera-tower/build', 'index.html'));
+// });
 
 // Login route
 // app.post('/login', async (req, res) => {
@@ -131,9 +131,9 @@ function authMiddleware(req, res, next) {
   }
 }
 
-app.get('/dashboard/overview', authMiddleware, (req, res) => {
-  res.sendFile(path.join(__dirname, 'zumera-tower/build/dashboard/overview.html'));
-});
+// app.get('/dashboard/overview', authMiddleware, (req, res) => {
+//   res.sendFile(path.join(__dirname, 'zumera-tower/build/dashboard/overview.html'));
+// });
 
 
 
