@@ -11,6 +11,8 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 const path = require('path');
 const nodemailer = require('nodemailer')
+const { google } = require('googleapis')
+const readline = require('readline');
 const multer = require('multer')
 const multerStorageCloudinary = require('multer-storage-cloudinary') 
 const cloudinary = require('./cloudinary/cloudinary')
@@ -35,6 +37,7 @@ const Procurement = require('./models/positions/procurement');
 const ProjectManagerExecutive = require('./models/positions/projectManagerExecutive');
 const SalesExecutive = require('./models/positions/salesExecutive');
 const Blog = require("./models/blogPost");
+const { GoogleAuth } = require("google-auth-library");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -73,6 +76,7 @@ app.get('/get-cookies', (req, res) => {
   console.log(cookies)
   res.json(cookies)
 })
+
 
 // Routing to different pages
 // app.use(express.static(path.join(__dirname, 'zumera-tower/build')));
@@ -188,15 +192,64 @@ app.get('/all-users', async (req, res) => {
 })
 
 // register subscribers
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: "corneliusedos@gmail.com",
-    pass: "Cornelius1997.",
-  },
+
+const CLIENT_ID = '1088360492695-mmsns0bjqj7tao7e9vrbgjvrskf1tg68.apps.googleusercontent.com';
+const CLIENT_SECRET = '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';
+const REDIRECT_URI = 'https://zumera-backend.onrender.com'; // Replace with your redirect URI
+const REFRESH_TOKEN = '4/0AeaYSHC7pKjevEQN7-SPIHMF6c6M8YytUoJIi94BCza6c-9qqRrhP8KBPVSBThxojiA53Q&'; // You'll get this after the first authorization flow
+
+const oAuth2Client = new google.auth.OAuth2(
+  CLIENT_ID,
+  CLIENT_SECRET,
+  REDIRECT_URI
+);
+
+const authUrl = oAuth2Client.generateAuthUrl({
+  access_type: 'offline',
+  scope: ['https://mail.google.com/'],
 });
+
+console.log('Authorize this app by visiting this URL:', authUrl);
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+
+rl.question('Enter the code from that page here: ', (code) => {
+  rl.close();
+  oAuth2Client.getToken(code, (err, token) => {
+    if (err) return console.error('Error retrieving access token', err);
+    oAuth2Client.setCredentials(token);
+    fs.writeFileSync('token.json', JSON.stringify(token));
+    console.log('Token stored to token.json');
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: 'enquiry@zumeraproperty.com',
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        refreshToken: token.refresh_token,
+      },
+    });
+
+    transporter.sendMail({
+      from: 'enquiry@zumeraproperty.com',
+      to: 'recipient@example.com',
+      subject: 'Test Email',
+      text: 'This is a test email sent using OAuth2 authentication with Nodemailer.',
+    }, (err, info) => {
+      if (err) {
+        console.error('Error sending email:', err);
+      } else {
+        console.log('Email sent:', info);
+      }
+    });
+  });
+});
+
 
 app.post('/subscriber', async (req, res) => {
   try {
@@ -211,7 +264,7 @@ app.post('/subscriber', async (req, res) => {
     res.send(subscriber);
 
     const info = await transporter.sendMail({
-      from: '"Zumera" <corneliusedos@gmail.com>',
+      from: '"Zumera" <enquiry@zumeraproperty.com>',
       to: email,
       subject: "Welcome to Zumera!",
       text: `Dear ${name},\n\nWelcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.\n\nWelcome to the Zumera Tribe!\n\nWarm regards,\nThe Zumera Team`,
