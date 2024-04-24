@@ -223,18 +223,6 @@ rl.question('Enter the code from that page here: ', async (code) => {
     oAuth2Client.setCredentials(tokens);
     fs.writeFileSync('token.json', JSON.stringify(tokens));
     console.log('Token stored to token.json');
-
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        type: 'OAuth2',
-        user: 'enquiry@zumeraproperty.com',
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: tokens.refresh_token,
-        accessToken: tokens.access_token,
-      },
-    });
   } catch (error) {
     console.error('Error retrieving access token', error);
   }
@@ -254,14 +242,39 @@ app.post('/subscriber', async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.send(subscriber);
 
-    const info = await transporter.sendMail({
-      from: '"Zumera" <enquiry@zumeraproperty.com>',
-      to: email,
-      subject: "Welcome to Zumera!",
-      text: `Dear ${name},\n\nWelcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.\n\nWelcome to the Zumera Tribe!\n\nWarm regards,\nThe Zumera Team`,
-      html: `<p>Dear ${name},</p><p>Welcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.</p><p>Welcome to the Zumera Tribe!</p><p>Warm regards,<br/>The Zumera Team</p>`,
+    // const info = await transporter.sendMail({
+    //   from: '"Zumera" <enquiry@zumeraproperty.com>',
+    //   to: email,
+    //   subject: "Welcome to Zumera!",
+    //   text: `Dear ${name},\n\nWelcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.\n\nWelcome to the Zumera Tribe!\n\nWarm regards,\nThe Zumera Team`,
+    //   html: `<p>Dear ${name},</p><p>Welcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.</p><p>Welcome to the Zumera Tribe!</p><p>Warm regards,<br/>The Zumera Team</p>`,
+    // });
+    // console.log("Message sent: %s", info.messageId);
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: 'enquiry@zumeraproperty.com',
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        refreshToken: tokens.refresh_token,
+        accessToken: tokens.access_token,
+      },
     });
-    console.log("Message sent: %s", info.messageId);
+
+    transporter.sendMail({
+      from: 'enquiry@zumeraproperty.com',
+      to: 'recipient@example.com',
+      subject: 'Test Email',
+      text: 'This is a test email sent using OAuth2 authentication with Nodemailer.',
+    }, (err, info) => {
+      if (err) {
+        console.error('Error sending email:', err);
+      } else {
+        console.log('Email sent:', info);
+      }
+    });
+        console.log("Message sent: %s", transporter.messageId)
   } catch (err) {
     console.error(err);
     res.status(500).json({ messageErr: 'Server error' });
