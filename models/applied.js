@@ -4,6 +4,8 @@ const Schema = mongoose.Schema;
 
 const appliedSchema = new Schema({
 
+    jobTitle: String, 
+    
     name: String,
 
     email: String,
@@ -16,7 +18,7 @@ const appliedSchema = new Schema({
 
     letter: String,
 
-    resume: [String],
+    resume: String,
 
 },{timestamps: true});
 

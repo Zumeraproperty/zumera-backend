@@ -701,23 +701,30 @@ app.get('/career/:id', async (req, res) => {
 
 
 // recieving job application
-app.post('/apply', upload.single('pdf'), async (req, res) => {
+app.post('/apply', upload.single('pdfFile'), async (req, res) => {
   try {
-    const file = req.file;
-    if (!file) {
+    // Check if file was uploaded
+    if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
+    // Check if the uploaded file is a PDF
+    if (req.file.mimetype !== 'application/pdf') {
+      return res.status(400).json({ error: 'Invalid file format. Only PDF files are allowed' });
+    }
+
+    // Upload file to Cloudinary
     const uploadOptions = {
       upload_preset: 'blog_media',
       folder: 'applicants',
       allowed_formats: ['pdf']
     };
-
-    const result = await cloudinary.uploader.upload(file.path, uploadOptions);
+    const result = await cloudinary.uploader.upload(req.file.path, uploadOptions);
     const pdfUrl = result.secure_url;
 
+    // Create new document in MongoDB
     const applied = new Applied({
+      jobTitle: req.body.jobTitle,
       name: req.body.name,
       email: req.body.email,
       address: req.body.address,
@@ -726,9 +733,12 @@ app.post('/apply', upload.single('pdf'), async (req, res) => {
       letter: req.body.letter,
       resume: pdfUrl
     });
-
     await applied.save();
-    res.status(200).json({ message: 'Your application has been received'});
+
+    // Clean up: Delete the temporary file
+    fs.unlinkSync(req.file.path);
+
+    res.status(200).json({ message: 'Your application has been received' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to upload file or save application' });
