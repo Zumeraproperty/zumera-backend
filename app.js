@@ -193,10 +193,10 @@ app.get('/all-users', async (req, res) => {
 
 // register subscribers
 
-const CLIENT_ID = '1088360492695-mmsns0bjqj7tao7e9vrbgjvrskf1tg68.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REDIRECT_URI = 'https://zumera-backend.onrender.com'; // Replace with your redirect URI
-const REFRESH_TOKEN = '4/0AeaYSHC7pKjevEQN7-SPIHMF6c6M8YytUoJIi94BCza6c-9qqRrhP8KBPVSBThxojiA53Q&'; // You'll get this after the first authorization flow
+const CLIENT_ID = process.env.CLIENT_ID
+const CLIENT_SECRET = process.env.CLIENT_SECRET
+const REDIRECT_URI = process.env.REDIRECT_URI; // Replace with your redirect URI
+const REFRESH_TOKEN = process.env.REFRESH_TOKEN; // You'll get this after the first authorization flow
 
 const oAuth2Client = new google.auth.OAuth2(
   CLIENT_ID,
@@ -216,12 +216,12 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-rl.question('Enter the code from that page here: ', (code) => {
+rl.question('Enter the code from that page here: ', async (code) => {
   rl.close();
-  oAuth2Client.getToken(code, (err, token) => {
-    if (err) return console.error('Error retrieving access token', err);
-    oAuth2Client.setCredentials(token);
-    fs.writeFileSync('token.json', JSON.stringify(token));
+  try {
+    const { tokens } = await oAuth2Client.getToken(code);
+    oAuth2Client.setCredentials(tokens);
+    fs.writeFileSync('token.json', JSON.stringify(tokens));
     console.log('Token stored to token.json');
 
     const transporter = nodemailer.createTransport({
@@ -231,7 +231,8 @@ rl.question('Enter the code from that page here: ', (code) => {
         user: 'enquiry@zumeraproperty.com',
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
-        refreshToken: token.refresh_token,
+        refreshToken: tokens.refresh_token,
+        accessToken: tokens.access_token,
       },
     });
 
@@ -247,8 +248,11 @@ rl.question('Enter the code from that page here: ', (code) => {
         console.log('Email sent:', info);
       }
     });
-  });
+  } catch (error) {
+    console.error('Error retrieving access token', error);
+  }
 });
+
 
 
 app.post('/subscriber', async (req, res) => {
