@@ -192,94 +192,52 @@ app.get('/all-users', async (req, res) => {
 })
 
 // register subscribers
-
-const CLIENT_ID = process.env.CLIENT_ID
-const CLIENT_SECRET = process.env.CLIENT_SECRET
-const REDIRECT_URI = process.env.REDIRECT_URI; // Replace with your redirect URI
-const REFRESH_TOKEN = process.env.REFRESH_TOKEN; // You'll get this after the first authorization flow
-
-const oAuth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
-);
-
-const authUrl = oAuth2Client.generateAuthUrl({
-  access_type: 'offline',
-  scope: ['https://mail.google.com/'],
-});
-
-console.log('Authorize this app by visiting this URL:', authUrl);
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-// rl.question('Enter the code from that page here: ', async (code) => {
-//   rl.close();
-//   try {
-//     const { tokens } = await oAuth2Client.getToken(code);
-//     oAuth2Client.setCredentials(tokens);
-//     fs.writeFileSync('token.json', JSON.stringify(tokens));
-//     console.log('Token stored to token.json');
-
-//     const transporter = nodemailer.createTransport({
-//       service: 'gmail',
-//       auth: {
-//         type: 'OAuth2',
-//         user: 'enquiry@zumeraproperty.com',
-//         clientId: CLIENT_ID,
-//         clientSecret: CLIENT_SECRET,
-//         refreshToken: tokens.refresh_token,
-//         accessToken: tokens.access_token,
-//       },
-//     });
-
-//     transporter.sendMail({
-//       from: 'enquiry@zumeraproperty.com',
-//       to: 'recipient@example.com',
-//       subject: 'Test Email',
-//       text: 'This is a test email sent using OAuth2 authentication with Nodemailer.',
-//     }, (err, info) => {
-//       if (err) {
-//         console.error('Error sending email:', err);
-//       } else {
-//         console.log('Email sent:', info);
-//       }
-//     });
-//   } catch (error) {
-//     console.error('Error retrieving access token', error);
-//   }
-// });
-
-
-
 app.post('/subscriber', async (req, res) => {
   try {
-    const existingUser = await Subscriber.findOne({ email: req.body.email });
+    const { name, email } = req.body;
+
+    // Check if the email already exists in the database
+    const existingUser = await Subscriber.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ messageErr: 'Email already exists' });
     }
-    const { name, email } = req.body;
+
+    // Save the new subscriber
     const subscriber = new Subscriber({ name, email });
     await subscriber.save();
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.send(subscriber);
 
+    // Create nodemailer transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: 'enquiry@zumeraproperty.com',
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        refreshToken: process.env.REFRESH_TOKEN,
+        accessToken: process.env.ACCESS_TOKEN, // Assuming you have this token available
+      },
+    });
+
+    // Send welcome email to the subscriber
     const info = await transporter.sendMail({
       from: '"Zumera" <enquiry@zumeraproperty.com>',
       to: email,
-      subject: "Welcome to Zumera!",
+      subject: 'Welcome to Zumera!',
       text: `Dear ${name},\n\nWelcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.\n\nWelcome to the Zumera Tribe!\n\nWarm regards,\nThe Zumera Team`,
       html: `<p>Dear ${name},</p><p>Welcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.</p><p>Welcome to the Zumera Tribe!</p><p>Warm regards,<br/>The Zumera Team</p>`,
     });
-    console.log("Message sent: %s", info.messageId);
+    console.log('Message sent: %s', info.messageId);
+
+    // Respond to the client with the saved subscriber data
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.send(subscriber);
   } catch (err) {
     console.error(err);
     res.status(500).json({ messageErr: 'Server error' });
   }
 });
+
 
 
 
