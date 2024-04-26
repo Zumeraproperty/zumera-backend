@@ -23,6 +23,7 @@ const upload = multer({ dest: 'uploads/' });
 // All models
 const Users = require('./models/users')
 const Subscribers = require('./models/subscribers');
+const Investor = require('./models/investor')
 const Blogs = require('./models/blogPost');
 const User = require('./models/users');
 const Applied = require("./models/applied");
@@ -280,6 +281,78 @@ Zumera Property Development Limited.
 app.get('/get-all-subscribers', (req, res) => {
   const allSubscribers =  Subscribers.find().then(result => res.send(result)).catch((err) => console.log(err))
 })
+
+
+// Investors 
+app.post('/investor', async (req, res) => {
+  try {
+    const { name, email, mobile, category } = req.body;
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: 'enquiry@zumeraproperty.com', // Your Gmail address
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        refreshToken: REFRESH_TOKEN,
+        accessToken: oAuth2Client.getAccessToken(),
+      },
+    });
+    const investMessage = `
+Congratulations,  ${name} You've taken a huge leap 
+
+Zumera isn't just real estate – it's a movement for those who DARE TO BE BIGGER. We're building more than luxury living spaces; we're crafting the environment that stirs your potential and fuels your achievements. 
+
+The brochure you're about to download is a glimpse into our limitless world. But it's just the beginning. 
+
+Are you an achiever? Or an aspiring leader hungry to make your mark? get subscribed to our newsletter to become a part of the Zumera community, you'll be the first to know about upcoming projects, exclusive offers, and inspiring events.
+
+Click here to download: <a href="https://example.com/download">Download Brochure</a>
+
+Zumera Property Development Limited.`;
+
+    const mailOptions = {
+      from: 'Zumera Property <enquiry@zumeraproperty.com>', // Your Gmail address
+      to: email,
+      subject: `KNOW MORE ABOUT US`,
+      // text: investMessage,
+      html: `
+          <p style="font-weigth:bold">Congratulations, ${name}! You've taken a huge leap.</p>
+
+          <div>
+          <p>Zumera isn't just real estate – it's a movement for those who DARE TO BE BIGGER. We're building more than luxury living spaces; we're crafting the environment that stirs your potential and fuels your achievements.</p>
+          <p>The brochure you're about to download is a glimpse into our limitless world. But it's just the beginning.</p>
+          <p>Are you an achiever? Or an aspiring leader hungry to make your mark? Get subscribed to our newsletter to become a part of the Zumera community; you'll be the first to know about upcoming projects, exclusive offers, and inspiring events.</p>
+          <p><a href="https://example.com/download">Click here to download brochure</a></p>
+
+          </div>
+
+
+          <p><span style="margin-top:100px">Zumera Property Development Limited.</span></p>
+        `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    const investor = new Investor({ name, email, mobile, category });
+    await investor.save();
+
+    res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Error sending email' });
+  }
+});
+
+
+// get all Investors
+app.get('/get-all-investors', (req, res) => {
+  return Investor.find().then(result => res.send(result)).catch((err) => console.log(err))
+})
+
+
+
 
 // Blog Post
 app.post('/upload', upload.array('files', 3), async (req, res) => {
@@ -752,7 +825,9 @@ app.get('/career/:id', async (req, res) => {
 
 // recieving job application
 app.post('/apply', upload.single('pdfFile'), async (req, res) => {
+  console.log(req.body)
   try {
+    console.log(req.file);
     // Check if file was uploaded
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
