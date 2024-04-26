@@ -12,6 +12,7 @@ const cookieParser = require('cookie-parser')
 const path = require('path');
 const nodemailer = require('nodemailer')
 const { google } = require('googleapis')
+const OAuth2Client = require('google-auth-library')
 const readline = require('readline');
 const multer = require('multer')
 const multerStorageCloudinary = require('multer-storage-cloudinary') 
@@ -193,9 +194,9 @@ app.get('/all-users', async (req, res) => {
 
 // register subscribers
 
-const CLIENT_ID = process.env.CLIENT_ID
-const CLIENT_SECRET = process.env.CLIENT_SECRET
-const REDIRECT_URI = process.env.REDIRECT_URI; // Replace with your redirect URI
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const REDIRECT_URI = process.env.REDIRECT_URI; // Redirect URI used in OAuth2 flow
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN; // You'll get this after the first authorization flow
 
 const oAuth2Client = new google.auth.OAuth2(
@@ -204,82 +205,74 @@ const oAuth2Client = new google.auth.OAuth2(
   REDIRECT_URI
 );
 
+const refreshToken = process.env.REFRESH_TOKEN;
+if (refreshToken) {
+  oAuth2Client.setCredentials({ refresh_token: refreshToken });
+} else {
+  console.error('No refresh token set.');
+}
+
+// Generate authentication URL
 const authUrl = oAuth2Client.generateAuthUrl({
   access_type: 'offline',
   scope: ['https://mail.google.com/'],
 });
 
-console.log('Authorize this app by visiting this URL:', authUrl);
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-rl.question('Enter the code from that page here: ', async (code) => {
-  rl.close();
+app.post('/subscribers', async (req, res) => {
   try {
-    const { tokens } = await oAuth2Client.getToken(code);
-    oAuth2Client.setCredentials(tokens);
-    fs.writeFileSync('token.json', JSON.stringify(tokens));
-    console.log('Token stored to token.json');
-  } catch (error) {
-    console.error('Error retrieving access token', error);
-  }
-});
+    const { name, email, message } = req.body;
 
-
-
-app.post('/subscriber', async (req, res) => {
-  try {
-    const existingUser = await Subscriber.findOne({ email: req.body.email });
-    if (existingUser) {
-      return res.status(400).json({ messageErr: 'Email already exists' });
-    }
-    const { name, email } = req.body;
-    const subscriber = new Subscriber({ name, email });
-    await subscriber.save();
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.send(subscriber);
-
-    // const info = await transporter.sendMail({
-    //   from: '"Zumera" <enquiry@zumeraproperty.com>',
-    //   to: email,
-    //   subject: "Welcome to Zumera!",
-    //   text: `Dear ${name},\n\nWelcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.\n\nWelcome to the Zumera Tribe!\n\nWarm regards,\nThe Zumera Team`,
-    //   html: `<p>Dear ${name},</p><p>Welcome to Zumera, where luxury transcends boundaries and excellence is not just a goal but a lifestyle. As a valued subscriber, you now have access to expert guidance, inspiration, educational resources, community engagement, and exclusive offers.</p><p>Welcome to the Zumera Tribe!</p><p>Warm regards,<br/>The Zumera Team</p>`,
-    // });
-    // console.log("Message sent: %s", info.messageId);
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         type: 'OAuth2',
-        user: 'enquiry@zumeraproperty.com',
+        user: 'enquiry@zumeraproperty.com', // Your Gmail address
         clientId: CLIENT_ID,
         clientSecret: CLIENT_SECRET,
-        refreshToken: tokens.refresh_token,
-        accessToken: tokens.access_token,
+        refreshToken: REFRESH_TOKEN,
+        accessToken: oAuth2Client.getAccessToken(),
       },
     });
+    const subscriberMessage = `
+Dear ${name},
 
-    transporter.sendMail({
-      from: 'enquiry@zumeraproperty.com',
-      to: 'recipient@example.com',
-      subject: 'Test Email',
-      text: 'This is a test email sent using OAuth2 authentication with Nodemailer.',
-    }, (err, info) => {
-      if (err) {
-        console.error('Error sending email:', err);
-      } else {
-        console.log('Email sent:', info);
-      }
-    });
-        console.log("Message sent: %s", transporter.messageId)
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ messageErr: 'Server error' });
+Welcome to Zumera! We're more than just a real estate company; we're a movement for achievers and aspiring leaders in a nation on the rise.
+Zumera isn't just about luxury living; it's about inspiring you to BE BETTER. 
+
+We build innovative structures that elevate your lifestyle and fuel your ambitions. Whether you've already made your mark or are hungry to make one, Zumera empowers you to live at your peak.
+
+As a valued subscriber, you'll gain insights from industry leaders through expert guidance, find articles, events, and content to ignite your potential with inspiring resources, and connect with like-minded individuals to share your journey within a vibrant community. Plus, be the first to know about upcoming projects, exclusive offers, and pre-launch events with early access.
+
+Follow us on all our social media for a peek into the Zumera lifestyle and stay tuned for exciting updates!
+
+Zumera Property Development Limited.
+`;
+
+    const mailOptions = {
+      from: 'Zumera Property <enquiry@zumeraproperty.com>', // Your Gmail address
+      to: email,
+      subject: `YOU'RE IN!`,
+      text: subscriberMessage,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    const subscriber = new Subscriber({ name, email });
+    await subscriber.save();
+
+    res.status(200).json({ message: 'Email sent successfully' });
+  } catch (error) {
+    console.error('Error sending email:', error);
+    res.status(500).json({ message: 'Error sending email' });
   }
 });
+
 
 
 
