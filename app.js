@@ -224,7 +224,7 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-app.post('/subscribers', async (req, res) => {
+app.post('/subscriber', async (req, res) => {
   try {
     const { name, email, message } = req.body;
 
