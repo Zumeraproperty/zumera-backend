@@ -17,6 +17,7 @@ const readline = require('readline');
 const multer = require('multer')
 const multerStorageCloudinary = require('multer-storage-cloudinary') 
 const cloudinary = require('./cloudinary/cloudinary')
+const { Image } = require('image.io');
 const upload = multer({ dest: 'uploads/' });
   
 
@@ -369,25 +370,20 @@ app.post('/upload', upload.array('files', 3), async (req, res) => {
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
-    const cloudinaryUrls = [];
+    const imageUrls = [];
     for (const file of files) {
       try {
-        let uploadOptions = {
-          upload_preset: 'blog_media',
-          allowed_formats: ['png', 'jpg', 'jpeg', 'svg', 'ico', 'jfif', 'webp', 'mp4', 'mov', 'avi', 'flv', 'wmv'],
-        };
+        // Initialize Image object with your image.io API key
+        const image = new Image('your_image_io_api_key');
 
-        // Check if the file is an image or video and set upload options accordingly
-        if (file.mimetype.startsWith('image/')) {
-          uploadOptions.resource_type = 'image';
-        } else if (file.mimetype.startsWith('video/')) {
-          uploadOptions.resource_type = 'video';
-        }
+        // Upload the file to image.io
+        const response = await image.upload(file.buffer, {
+          type: file.mimetype,
+          name: file.originalname,
+        });
 
-        const result = await cloudinary.uploader.upload(file.path, uploadOptions);
-        cloudinaryUrls.push(result.url);
-        // Delete the local file after uploading to Cloudinary
-        fs.unlinkSync(file.path);
+        // Push the image URL to the array
+        imageUrls.push(response.url);
       } catch (error) {
         console.log(error);
         // Continue uploading other files even if one fails
@@ -395,25 +391,15 @@ app.post('/upload', upload.array('files', 3), async (req, res) => {
       }
     }
 
-    const blog = new Blog({
-      blogTitle: req.body.blogTitle,
-      blogText1: req.body.blogText1,
-      blogText2: req.body.blogText2,
-      blogText3: req.body.blogText3,
-      blogUrl1: req.body.blogUrl1,
-      blogUrl2: req.body.blogUrl2,
-      blogUrl3: req.body.blogUrl3,
-      cloudinaryUrls: cloudinaryUrls,
-    });
+    // Process the uploaded images (e.g., save to database, etc.)
+    // ...
 
-    await blog.save();
-    res.status(200).json({ message: 'Files uploaded and blog entry created', blogId: blog._id });
+    res.status(200).json({ message: 'Files uploaded successfully', imageUrls });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'Failed to upload files or save blog entry' });
+    res.status(500).json({ error: 'Failed to upload files' });
   }
 });
-
 // get all blogs
 app.get('/blogs', async (req, res) => {
   try {
