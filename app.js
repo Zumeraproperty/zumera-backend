@@ -118,8 +118,7 @@ app.post('/login', async (req, res) => {
   }
 
   const token = jwt.sign({ userId: user._id }, 'your_secret_key');
-  res.json({ token });
-  res.json({ token, redirectUrl: '/dashboard/overview' });
+  res.json({ token, redirectUrl: 'https://zumera-tower.vercel.app/dashboard/overview' });
 });
 
 function authMiddleware(req, res, next) {
