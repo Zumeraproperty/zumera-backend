@@ -15,10 +15,17 @@ const { google } = require('googleapis')
 const OAuth2Client = require('google-auth-library')
 const readline = require('readline');
 const multer = require('multer')
-const multerStorageCloudinary = require('multer-storage-cloudinary') 
-const cloudinary = require('./cloudinary/cloudinary')
-const { Image } = require('image.io');
-const upload = multer({ dest: 'uploads/' });
+// const multerStorageCloudinary = require('multer-storage-cloudinary') 
+// const cloudinary = require('./cloudinary/cloudinary')
+const upload = multer();
+
+
+// image kit
+// SDK initialization
+
+const ImageKit = require("imagekit");
+
+
   
 
 // All models
@@ -226,7 +233,6 @@ const authUrl = oAuth2Client.generateAuthUrl({
   scope: ['https://mail.google.com/'],
 });
 
-
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -281,9 +287,6 @@ Zumera Property Development Limited.
   }
 });
 
-
-
-
 // get all subscribers
 app.get('/get-all-subscribers', (req, res) => {
   const allSubscribers =  Subscribers.find().then(result => res.send(result)).catch((err) => console.log(err))
@@ -331,7 +334,7 @@ Zumera Property Development Limited.`;
           <p>Zumera isn't just real estate – it's a movement for those who DARE TO BE BIGGER. We're building more than luxury living spaces; we're crafting the environment that stirs your potential and fuels your achievements.</p>
           <p>The brochure you're about to download is a glimpse into our limitless world. But it's just the beginning.</p>
           <p>Are you an achiever? Or an aspiring leader hungry to make your mark? Get subscribed to our newsletter to become a part of the Zumera community; you'll be the first to know about upcoming projects, exclusive offers, and inspiring events.</p>
-          <p><a href="https://example.com/download">Click here to download brochure</a></p>
+          <p><a href="https://zumeratower.com/assets/files/investors_guide.pdf">Click here to download brochure</a></p>
 
           </div>
 
@@ -362,8 +365,14 @@ app.get('/get-all-investors', (req, res) => {
 
 
 // Blog Post
+
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
+});
+
 app.post('/upload', upload.array('files', 3), async (req, res) => {
-  console.log("joy")
   try {
     const files = req.files;
     if (!files || files.length === 0) {
@@ -373,33 +382,43 @@ app.post('/upload', upload.array('files', 3), async (req, res) => {
     const imageUrls = [];
     for (const file of files) {
       try {
-        // Initialize Image object with your image.io API key
-        const image = new Image('your_image_io_api_key');
-
-        // Upload the file to image.io
-        const response = await image.upload(file.buffer, {
-          type: file.mimetype,
-          name: file.originalname,
+        // Upload the file to ImageKit
+        const response = await imagekit.upload({
+          file: file.buffer,
+          fileName: file.originalname,
+          folder: 'blog'
         });
 
         // Push the image URL to the array
         imageUrls.push(response.url);
       } catch (error) {
-        console.log(error);
+        console.error('Failed to upload file:', error);
         // Continue uploading other files even if one fails
-        return res.status(500).json({ error: 'Failed to upload one or more files' });
+        // Do not return here
       }
     }
 
-    // Process the uploaded images (e.g., save to database, etc.)
-    // ...
+    // Save the blog details to the database
+    const blog = new Blog({
+      blogTitle: req.body.blogTitle,
+      blogText1: req.body.blogText1,
+      blogText2: req.body.blogText2,
+      blogText3: req.body.blogText3,
+      blogUrl1: req.body.blogUrl1,
+      blogUrl2: req.body.blogUrl2,
+      blogUrl3: req.body.blogUrl3,
+      cloudinaryUrls: imageUrls,
+    });
+
+    await blog.save();
 
     res.status(200).json({ message: 'Files uploaded successfully', imageUrls });
   } catch (error) {
-    console.log(error);
+    console.error('Failed to upload files:', error);
     res.status(500).json({ error: 'Failed to upload files' });
   }
 });
+
 // get all blogs
 app.get('/blogs', async (req, res) => {
   try {
@@ -427,7 +446,6 @@ app.get('/blogs/:id', async (req, res) => {
   }
 });
 
-
 // Delete blog post
 app.delete('/blogs/:id', async (req, res) => {
   const { id } = req.params;
@@ -439,18 +457,25 @@ app.delete('/blogs/:id', async (req, res) => {
       return res.status(404).json({ error: 'Blog entry not found' });
     }
 
-    // Delete the files from Cloudinary
+    // Delete the files from ImageKit
     for (const url of blog.cloudinaryUrls) {
-      const publicId = url.substring(url.lastIndexOf('/blog/') + 1, url.lastIndexOf('.'));
-      await cloudinary.uploader.destroy(publicId);
+      console.log('Deleting file with URL:', url); // Log the URL
+      try {
+        const publicId = url.substring(url.lastIndexOf('/blog/') + 1, url.lastIndexOf('.'));
+        console.log(publicId)
+        await imagekit.deleteFile(publicId);
+      } catch (error) {
+        console.error('Failed to delete file with URL:', url, error);
+        // Continue deleting other files even if one fails
+      }
     }
-
+    
     // Delete the blog entry from MongoDB
     await Blog.findByIdAndDelete(id);
 
     res.status(200).json({ message: 'Blog entry and files deleted successfully' });
   } catch (error) {
-    console.log(error);
+    console.error('Failed to delete blog entry and files:', error);
     res.status(500).json({ error: 'Failed to delete blog entry and files' });
   }
 });
@@ -465,30 +490,29 @@ app.put('/blogs/:id', upload.array('files', 3), async (req, res) => {
       return res.status(404).json({ error: 'Blog entry not found' });
     }
 
-    // Delete existing files from Cloudinary
+    // Delete existing files from ImageKit
     for (const url of blog.cloudinaryUrls) {
-      const publicId = url.substring(url.lastIndexOf('/blog/') + 1, url.lastIndexOf('.'));
-      await cloudinary.uploader.destroy(publicId);
+      const fileId = url.substring(url.lastIndexOf('/') + 1);
+      await imagekit.deleteFile(fileId);
     }
 
-    // Upload new files to Cloudinary
+    // Upload new files to ImageKit
     const files = req.files;
-    const cloudinaryUrls = [];
+    const imageUrls = [];
     for (const file of files) {
-      let uploadOptions = {
-        upload_preset: 'blog_media',
-        allowed_formats: ['png', 'jpg', 'jpeg', 'svg', 'ico', 'jfif', 'webp', 'mp4', 'mov', 'avi', 'flv', 'wmv'],
-      };
+      try {
+        // Upload the file to ImageKit
+        const response = await imagekit.upload({
+          file: file.buffer,
+          fileName: file.originalname,
+        });
 
-      if (file.mimetype.startsWith('image/')) {
-        uploadOptions.resource_type = 'image';
-      } else if (file.mimetype.startsWith('video/')) {
-        uploadOptions.resource_type = 'video';
+        // Push the image URL to the array
+        imageUrls.push(response.url);
+      } catch (error) {
+        console.error('Failed to upload file:', error);
+        // Continue uploading other files even if one fails
       }
-
-      const result = await cloudinary.uploader.upload(file.path, uploadOptions);
-      cloudinaryUrls.push(result.url);
-      fs.unlinkSync(file.path);
     }
 
     // Update the blog entry with new data
@@ -499,12 +523,12 @@ app.put('/blogs/:id', upload.array('files', 3), async (req, res) => {
     blog.blogUrl1 = req.body.blogUrl1;
     blog.blogUrl2 = req.body.blogUrl2;
     blog.blogUrl3 = req.body.blogUrl3;
-    blog.cloudinaryUrls = cloudinaryUrls;
+    blog.cloudinaryUrls = imageUrls;
 
     await blog.save();
     res.status(200).json({ message: 'Blog entry updated successfully' });
   } catch (error) {
-    console.log(error);
+    console.error('Failed to update blog entry:', error);
     res.status(500).json({ error: 'Failed to update blog entry' });
   }
 });

@@ -12,11 +12,10 @@
     "express-session": "^1.18.0",
     "google-auth-library": "^9.8.0",
     "googleapis": "^134.0.0",
-    "image.io": "^0.2.0",
+    "imagekit": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.1.2",
     "multer": "^1.4.5-lts.1",
-    "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^6.9.13",
     "pdf-parse": "^1.1.1",
     "validator": "^13.11.0"
