@@ -358,7 +358,7 @@ Zumera Property Development Limited.`;
 
 // get all Investors
 app.get('/get-all-investors', (req, res) => {
-  return Investor.find().then(result => res.send(result)).catch((err) => console.log(err))
+  const allInvestor = Investor.find().then(result => res.send(result)).catch((err) => console.log(err))
 })
 
 
@@ -854,14 +854,16 @@ app.post('/apply', upload.single('pdfFile'), async (req, res) => {
       return res.status(400).json({ error: 'Invalid file format. Only PDF files are allowed' });
     }
 
-    // Upload file to Cloudinary
-    const uploadOptions = {
-      upload_preset: 'blog_media',
-      folder: 'applicants',
-      allowed_formats: ['pdf']
-    };
-    const result = await cloudinary.uploader.upload(req.file.path, uploadOptions);
-    const pdfUrl = result.secure_url;
+    // Read file into buffer
+    const fileBuffer = fs.readFileSync(req.file.path);
+
+    // Upload file to ImageKit
+    const result = await imagekit.upload({
+      file: fileBuffer.toString('base64'),
+      fileName: req.file.originalname,
+      folder: 'applicants'
+    });
+    const pdfUrl = result.url;
 
     // Create new document in MongoDB
     const applied = new Applied({
