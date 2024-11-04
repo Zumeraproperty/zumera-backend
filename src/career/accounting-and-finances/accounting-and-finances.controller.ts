@@ -10,7 +10,7 @@ import {
 import { AccountingAndFinancesService } from './accounting-and-finances.service';
 import { CreateAccountingAndFinancesDto } from './dto/create-accounting-and-finances.dto';
 
-@Controller('accounting-and-finances')
+@Controller('all-accounting-and-finance')
 export class AccountingAndFinancesController {
   constructor(
     private readonly accountingAndFinancesService: AccountingAndFinancesService,
