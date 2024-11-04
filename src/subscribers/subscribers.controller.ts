@@ -12,7 +12,7 @@ import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('subscribers')
+@Controller('subscriber')
 export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}
 
