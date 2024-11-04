@@ -5,20 +5,24 @@ import {
   Body,
   Param,
   Delete,
-  UseGuards,
-  Req,
+  HttpStatus,
 } from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
-import { AuthGuard } from '@nestjs/passport';
 
 @Controller('subscriber')
 export class SubscribersController {
   constructor(private readonly subscribersService: SubscribersService) {}
 
   @Post()
-  create(@Body() createSubscriberDto: CreateSubscriberDto) {
-    return this.subscribersService.create(createSubscriberDto);
+  async create(@Body() createSubscriberDto: CreateSubscriberDto) {
+    const subscriber =
+      await this.subscribersService.create(createSubscriberDto);
+    return {
+      statusCode: HttpStatus.CREATED,
+      message: 'Thank you for subscribing',
+      data: subscriber,
+    };
   }
 
   @Get()

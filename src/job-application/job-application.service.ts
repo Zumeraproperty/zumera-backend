@@ -17,7 +17,10 @@ export class JobApplicationService {
     });
   }
 
-  async create(file: Express.Multer.File, createApplicationDto: CreateApplicationDto) {
+  async create(
+    file: Express.Multer.File,
+    createApplicationDto: CreateApplicationDto,
+  ) {
     try {
       const result = await this.imagekit.upload({
         file: file.buffer.toString('base64'),
@@ -32,7 +35,10 @@ export class JobApplicationService {
 
       return await application.save();
     } catch (error) {
-      throw new HttpException('Failed to upload file or save application', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to upload file or save application',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

@@ -20,8 +20,13 @@ let SubscribersController = class SubscribersController {
     constructor(subscribersService) {
         this.subscribersService = subscribersService;
     }
-    create(createSubscriberDto) {
-        return this.subscribersService.create(createSubscriberDto);
+    async create(createSubscriberDto) {
+        const subscriber = await this.subscribersService.create(createSubscriberDto);
+        return {
+            statusCode: common_1.HttpStatus.CREATED,
+            message: 'Thank you for subscribing',
+            data: subscriber,
+        };
     }
     findAll() {
         return this.subscribersService.findAll();
@@ -36,7 +41,7 @@ __decorate([
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_subscriber_dto_1.CreateSubscriberDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], SubscribersController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
@@ -52,7 +57,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], SubscribersController.prototype, "remove", null);
 exports.SubscribersController = SubscribersController = __decorate([
-    (0, common_1.Controller)('subscribers'),
+    (0, common_1.Controller)('subscriber'),
     __metadata("design:paramtypes", [subscribers_service_1.SubscribersService])
 ], SubscribersController);
 //# sourceMappingURL=subscribers.controller.js.map
