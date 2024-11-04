@@ -10,7 +10,7 @@ import {
 import { ProjectManagerExecutiveService } from './project-manager-executive.service';
 import { CreateProjectManagerExecutiveDto } from './dto/create-project-manager-executive.dto';
 
-@Controller('project-manager-executive')
+@Controller('all-project-manager-executive')
 export class ProjectManagerExecutiveController {
   constructor(
     private readonly projectManagerExecutiveService: ProjectManagerExecutiveService,
