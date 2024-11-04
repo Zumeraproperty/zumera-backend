@@ -1,1 +1,2 @@
-export declare class SubscribersModule {}
+export declare class SubscribersModule {
+}

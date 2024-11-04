@@ -1,1 +1,2 @@
-export declare class CivilEngineeringsModule {}
+export declare class CivilEngineeringsModule {
+}

@@ -1,1 +1,2 @@
-export declare class JobApplicationModule {}
+export declare class JobApplicationModule {
+}

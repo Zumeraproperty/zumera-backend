@@ -1,1 +1,2 @@
-export declare class ArchitectureAndDesignsModule {}
+export declare class ArchitectureAndDesignsModule {
+}

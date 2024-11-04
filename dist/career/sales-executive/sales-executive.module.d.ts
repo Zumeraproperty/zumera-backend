@@ -1,1 +1,2 @@
-export declare class SalesExecutiveModule {}
+export declare class SalesExecutiveModule {
+}

@@ -1,1 +1,2 @@
-export declare class EmailModule {}
+export declare class EmailModule {
+}

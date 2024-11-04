@@ -1,1 +1,2 @@
-export declare class ProcurementsModule {}
+export declare class ProcurementsModule {
+}

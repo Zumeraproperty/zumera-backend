@@ -1,1 +1,2 @@
-export declare class CareerModule {}
+export declare class CareerModule {
+}
