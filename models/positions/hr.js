@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
-const hrSchema = new Schema({
-
+const hrSchema = new Schema(
+  {
     title: String,
 
     description: String,
@@ -11,10 +10,9 @@ const hrSchema = new Schema({
     requirements: String,
 
     skill: String,
+  },
+  { timestamps: true },
+);
 
-    
-},{timestamps: true});
-
-
-const Hr = mongoose.model('Hr', hrSchema)
+const Hr = mongoose.model("Hr", hrSchema);
 module.exports = Hr;

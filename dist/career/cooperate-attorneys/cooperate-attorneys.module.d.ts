@@ -1,2 +1,1 @@
-export declare class CooperateAttorneysModule {
-}
+export declare class CooperateAttorneysModule {}

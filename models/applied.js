@@ -1,11 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+const appliedSchema = new Schema(
+  {
+    jobTitle: String,
 
-const appliedSchema = new Schema({
-
-    jobTitle: String, 
-    
     name: String,
 
     email: String,
@@ -19,9 +18,9 @@ const appliedSchema = new Schema({
     letter: String,
 
     resume: String,
+  },
+  { timestamps: true },
+);
 
-},{timestamps: true});
-
-
-const Applied = mongoose.model('Applied', appliedSchema)
+const Applied = mongoose.model("Applied", appliedSchema);
 module.exports = Applied;

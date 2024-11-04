@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
-const cooperateAttorneySchema = new Schema({
-
+const cooperateAttorneySchema = new Schema(
+  {
     title: String,
 
     description: String,
@@ -11,10 +10,12 @@ const cooperateAttorneySchema = new Schema({
     requirements: String,
 
     skill: String,
+  },
+  { timestamps: true },
+);
 
-    
-},{timestamps: true});
-
-
-const CooperateAttorney = mongoose.model('CooperateAttorney', cooperateAttorneySchema)
+const CooperateAttorney = mongoose.model(
+  "CooperateAttorney",
+  cooperateAttorneySchema,
+);
 module.exports = CooperateAttorney;

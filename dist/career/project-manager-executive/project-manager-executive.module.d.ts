@@ -1,2 +1,1 @@
-export declare class ProjectManagerExecutiveModule {
-}
+export declare class ProjectManagerExecutiveModule {}

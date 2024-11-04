@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
-const procurementSchema = new Schema({
-
+const procurementSchema = new Schema(
+  {
     title: String,
 
     description: String,
@@ -11,10 +10,9 @@ const procurementSchema = new Schema({
     requirements: String,
 
     skill: String,
+  },
+  { timestamps: true },
+);
 
-    
-},{timestamps: true});
-
-
-const Procurement = mongoose.model('Procurement', procurementSchema)
+const Procurement = mongoose.model("Procurement", procurementSchema);
 module.exports = Procurement;

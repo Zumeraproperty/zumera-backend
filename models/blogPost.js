@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const blogSchema = new mongoose.Schema({
   blogTitle: String,
@@ -11,6 +11,6 @@ const blogSchema = new mongoose.Schema({
   cloudinaryUrls: [String],
 });
 
-const Blog = mongoose.model('Blog', blogSchema);
+const Blog = mongoose.model("Blog", blogSchema);
 
 module.exports = Blog;

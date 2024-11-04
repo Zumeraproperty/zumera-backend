@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
-const { castObject } = require('./projectManagerExecutive');
+const mongoose = require("mongoose");
+const { castObject } = require("./projectManagerExecutive");
 const Schema = mongoose.Schema;
 
-
-const civilEngineeringSchema = new Schema({
-
+const civilEngineeringSchema = new Schema(
+  {
     title: String,
 
     description: String,
@@ -12,10 +11,12 @@ const civilEngineeringSchema = new Schema({
     requirements: String,
 
     skill: String,
+  },
+  { timestamps: true },
+);
 
-    
-},{timestamps: true});
-
-
-const CivilEngineering = mongoose.model('CivilEngineering', civilEngineeringSchema)
+const CivilEngineering = mongoose.model(
+  "CivilEngineering",
+  civilEngineeringSchema,
+);
 module.exports = CivilEngineering;

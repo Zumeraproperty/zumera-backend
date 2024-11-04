@@ -1,4 +1,4 @@
 export declare class CreateSubscriberDto {
-    name: string;
-    email: string;
+  name: string;
+  email: string;
 }

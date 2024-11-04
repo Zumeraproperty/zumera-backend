@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
-const projectManagerExecutiveSchema = new Schema({
-
+const projectManagerExecutiveSchema = new Schema(
+  {
     title: String,
 
     description: String,
@@ -11,10 +10,12 @@ const projectManagerExecutiveSchema = new Schema({
     requirements: String,
 
     skill: String,
+  },
+  { timestamps: true },
+);
 
-    
-},{timestamps: true});
-
-
-const ProjectManagerExecutive = mongoose.model('ProjectManagerExecutive', projectManagerExecutiveSchema)
+const ProjectManagerExecutive = mongoose.model(
+  "ProjectManagerExecutive",
+  projectManagerExecutiveSchema,
+);
 module.exports = ProjectManagerExecutive;

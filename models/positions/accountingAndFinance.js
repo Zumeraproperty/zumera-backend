@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
-const accountingAndFinanceSchema = new Schema({
-
+const accountingAndFinanceSchema = new Schema(
+  {
     title: String,
 
     description: String,
@@ -11,9 +10,12 @@ const accountingAndFinanceSchema = new Schema({
     requirements: String,
 
     skill: String,
+  },
+  { timestamps: true },
+);
 
-},{timestamps: true});
-
-
-const AccountingAndFinance = mongoose.model('AccountingAndFinance', accountingAndFinanceSchema)
+const AccountingAndFinance = mongoose.model(
+  "AccountingAndFinance",
+  accountingAndFinanceSchema,
+);
 module.exports = AccountingAndFinance;

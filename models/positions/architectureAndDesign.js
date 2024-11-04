@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-
-const architectureAndDesignSchema = new Schema({
-
+const architectureAndDesignSchema = new Schema(
+  {
     title: String,
 
     description: String,
@@ -11,10 +10,12 @@ const architectureAndDesignSchema = new Schema({
     requirements: String,
 
     skill: String,
+  },
+  { timestamps: true },
+);
 
-    
-},{timestamps: true});
-
-
-const ArchitectureAndDesign = mongoose.model('ArchitectureAndDesign', architectureAndDesignSchema)
+const ArchitectureAndDesign = mongoose.model(
+  "ArchitectureAndDesign",
+  architectureAndDesignSchema,
+);
 module.exports = ArchitectureAndDesign;
