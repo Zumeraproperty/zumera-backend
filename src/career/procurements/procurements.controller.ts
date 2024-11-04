@@ -10,7 +10,7 @@ import {
 import { ProcurementsService } from './procurements.service';
 import { CreateProcurementsDto } from './dto/create-procurements.dto';
 
-@Controller('procurements')
+@Controller('all-procurement')
 export class ProcurementsController {
   constructor(private readonly procurementsService: ProcurementsService) {}
 

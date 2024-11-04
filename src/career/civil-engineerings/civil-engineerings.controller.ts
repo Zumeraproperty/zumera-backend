@@ -10,7 +10,7 @@ import {
 import { CivilEngineeringsService } from './civil-engineerings.service';
 import { CreateCivilEngineeringsDto } from './dto/create-civil-engineerings.dto';
 
-@Controller('civil-engineerings')
+@Controller('all-civil-engineering')
 export class CivilEngineeringsController {
   constructor(
     private readonly civilEngineeringsService: CivilEngineeringsService,

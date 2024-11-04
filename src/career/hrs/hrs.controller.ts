@@ -10,7 +10,7 @@ import {
 import { HrsService } from './hrs.service';
 import { CreateHrsDto } from './dto/create-hrs.dto';
 
-@Controller('hrs')
+@Controller('all-hr')
 export class HrsController {
   constructor(private readonly hrsService: HrsService) {}
 

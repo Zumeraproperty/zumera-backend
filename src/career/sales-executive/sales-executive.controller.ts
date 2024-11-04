@@ -10,7 +10,7 @@ import {
 import { SalesExecutiveService } from './sales-executive.service';
 import { CreateSalesExecutiveDto } from './dto/create-sales-executive.dto';
 
-@Controller('sales-executive')
+@Controller('all-sales-executive')
 export class SalesExecutiveController {
   constructor(private readonly salesExecutiveService: SalesExecutiveService) {}
 

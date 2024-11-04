@@ -10,7 +10,7 @@ import {
 import { OperationsService } from './operations.service';
 import { CreateOperationsDto } from './dto/create-operations.dto';
 
-@Controller('operations')
+@Controller('all-operations')
 export class OperationsController {
   constructor(private readonly operationsService: OperationsService) {}
 

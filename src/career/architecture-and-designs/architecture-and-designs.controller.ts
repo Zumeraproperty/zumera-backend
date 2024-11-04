@@ -10,7 +10,7 @@ import {
 import { ArchitectureAndDesignsService } from './architecture-and-designs.service';
 import { CreateArchitectureAndDesignsDto } from './dto/create-architecture-and-designs.dto';
 
-@Controller('architecture-and-designs')
+@Controller('all-architecture-and-design')
 export class ArchitectureAndDesignsController {
   constructor(
     private readonly architectureAndDesignsService: ArchitectureAndDesignsService,
