@@ -10,7 +10,7 @@ import {
 import { CooperateAttorneysService } from './cooperate-attorneys.service';
 import { CreateCooperateAttorneysDto } from './dto/create-cooperate-attorneys.dto';
 
-@Controller('cooperate-attorneys')
+@Controller('all-cooperate-attorney')
 export class CooperateAttorneysController {
   constructor(
     private readonly cooperateAttorneysService: CooperateAttorneysService,
