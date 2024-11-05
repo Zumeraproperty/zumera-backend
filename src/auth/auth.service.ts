@@ -6,10 +6,25 @@ import {
 import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+
+  private generateToken(user: any) {
+    const payload = {
+      sub: user._id,
+      email: user.email,
+      role: user.role,
+    };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
 
   async login(loginDto: { email: string; password: string }) {
     const user = await this.usersService.findByEmail(loginDto.email);
@@ -25,7 +40,9 @@ export class AuthService {
       throw new ConflictException('Email already exists');
     }
 
+    // Hash the password with salt rounds of 10
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+
     const newUser = await this.usersService.create({
       firstName: registerDto.firstName,
       lastName: registerDto.lastName,
@@ -33,10 +50,7 @@ export class AuthService {
       password: hashedPassword,
       role: registerDto.role || 'user',
     });
-    return {
-      message: 'User registered successfully',
-      userId: newUser._id,
-      role: newUser.role,
-    };
+
+    return this.generateToken(newUser);
   }
 }
