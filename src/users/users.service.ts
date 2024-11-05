@@ -12,7 +12,8 @@ export class UsersService {
   }
 
   async create(createUserDto: {
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
     role?: string;

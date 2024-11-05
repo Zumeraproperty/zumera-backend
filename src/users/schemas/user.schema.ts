@@ -8,7 +8,10 @@ export class User {
   _id: Types.ObjectId;
 
   @Prop({ required: true })
-  name: string;
+  firstName: string;
+
+  @Prop({ required: true })
+  lastName: string;
 
   @Prop({ required: true, unique: true })
   email: string;

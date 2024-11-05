@@ -7,7 +7,13 @@ export class UsersController {
 
   @Post()
   create(
-    @Body() createUserDto: { name: string; email: string; password: string },
+    @Body()
+    createUserDto: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+    },
   ) {
     return this.usersService.create(createUserDto);
   }
