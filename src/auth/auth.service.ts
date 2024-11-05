@@ -51,6 +51,9 @@ export class AuthService {
       role: registerDto.role || 'user',
     });
 
-    return this.generateToken(newUser);
+    return {
+      access_token: this.generateToken(newUser),
+      message: 'Register Successful',
+    };
   }
 }
