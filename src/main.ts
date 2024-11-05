@@ -11,12 +11,11 @@ async function bootstrap() {
     .setTitle('Zumera API')
     .setDescription('The Zumera API description')
     .setVersion('1.0')
-    .addTag('zumera')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 5000;
   await app.listen(port);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
