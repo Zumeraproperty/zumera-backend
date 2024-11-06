@@ -1,7 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
+
+enum Role {
+  USER = 'user',
+  ADMIN = 'admin',
+  MODERATOR = 'moderator',
+}
+
+const roleHierarchy = {
+  [Role.USER]: 1,
+  [Role.ADMIN]: 2,
+  [Role.MODERATOR]: 3,
+};
 
 @Injectable()
 export class UsersService {
@@ -35,20 +47,39 @@ export class UsersService {
   }
 
   async update(
-    id: string,
-    updateUserDto: {
-      firstName?: string;
-      lastName?: string;
-      email?: string;
-      role?: string;
-    },
+    currentUserRole: string,
+    targetUserId: string,
+    updateUserDto: any,
   ): Promise<User> {
+    const targetUser = await this.findOne(targetUserId);
+
+    if (!this.canModifyUser(currentUserRole, targetUser.role)) {
+      throw new ForbiddenException(
+        'You do not have permission to modify this user',
+      );
+    }
+
     return this.userModel
-      .findByIdAndUpdate(id, { $set: updateUserDto }, { new: true })
+      .findByIdAndUpdate(targetUserId, { $set: updateUserDto }, { new: true })
       .exec();
   }
 
-  async delete(id: string): Promise<User> {
-    return this.userModel.findByIdAndDelete(id).exec();
+  async delete(currentUserRole: string, targetUserId: string): Promise<User> {
+    const targetUser = await this.findOne(targetUserId);
+
+    if (!this.canModifyUser(currentUserRole, targetUser.role)) {
+      throw new ForbiddenException(
+        'You do not have permission to delete this user',
+      );
+    }
+
+    return this.userModel.findByIdAndDelete(targetUserId).exec();
+  }
+
+  private canModifyUser(
+    currentUserRole: string,
+    targetUserRole: string,
+  ): boolean {
+    return roleHierarchy[currentUserRole] > roleHierarchy[targetUserRole];
   }
 }
