@@ -47,4 +47,8 @@ export class UsersService {
       .findByIdAndUpdate(id, { $set: updateUserDto }, { new: true })
       .exec();
   }
+
+  async delete(id: string): Promise<User> {
+    return this.userModel.findByIdAndDelete(id).exec();
+  }
 }
