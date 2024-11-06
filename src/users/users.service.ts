@@ -1,19 +1,15 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 
-enum Role {
-  USER = 'user',
-  ADMIN = 'admin',
-  MODERATOR = 'moderator',
+interface CreateUserDto {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  role?: string;
 }
-
-const roleHierarchy = {
-  [Role.USER]: 1,
-  [Role.ADMIN]: 2,
-  [Role.MODERATOR]: 3,
-};
 
 @Injectable()
 export class UsersService {
@@ -29,21 +25,8 @@ export class UsersService {
     return roleHierarchy[currentUserRole]?.includes(targetRole) || false;
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email }).exec();
-  }
-
-  async create(
-    currentUserRole: string,
-    registerDto: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      password: string;
-      role?: string;
-    },
-  ): Promise<any> {
-    const targetRole = registerDto.role || 'user';
+  async create(currentUserRole: string, createUserDto: CreateUserDto) {
+    const targetRole = createUserDto.role || 'user';
 
     if (!this.canCreateRole(currentUserRole, targetRole)) {
       return {
@@ -52,7 +35,7 @@ export class UsersService {
       };
     }
 
-    const createdUser = new this.userModel(registerDto);
+    const createdUser = new this.userModel(createUserDto);
     await createdUser.save();
 
     return {
@@ -60,6 +43,10 @@ export class UsersService {
       success: true,
       user: createdUser,
     };
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).exec();
   }
 
   async findOne(id: string): Promise<User> {
@@ -120,6 +107,11 @@ export class UsersService {
     currentUserRole: string,
     targetUserRole: string,
   ): boolean {
+    const roleHierarchy = {
+      user: 1,
+      admin: 2,
+      moderator: 3,
+    };
     return roleHierarchy[currentUserRole] > roleHierarchy[targetUserRole];
   }
 }

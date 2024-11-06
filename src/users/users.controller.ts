@@ -15,12 +15,13 @@ import { UsersService } from './users.service';
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
-  
+
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
     @Request() req,
-    @Body() createUserDto: {
+    @Body()
+    createUserDto: {
       firstName: string;
       lastName: string;
       email: string;

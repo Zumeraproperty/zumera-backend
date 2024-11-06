@@ -42,9 +42,9 @@ export class AuthService {
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
-  
+
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-  
+
     const newUser = await this.usersService.create('user', {
       firstName: registerDto.firstName,
       lastName: registerDto.lastName,
@@ -52,11 +52,10 @@ export class AuthService {
       password: hashedPassword,
       role: registerDto.role || 'user',
     });
-  
+
     return {
       access_token: this.generateToken(newUser),
       message: 'Register Successful',
     };
   }
-  
 }
