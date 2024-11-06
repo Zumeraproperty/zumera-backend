@@ -50,30 +50,42 @@ export class UsersService {
     currentUserRole: string,
     targetUserId: string,
     updateUserDto: any,
-  ): Promise<User> {
+  ): Promise<any> {
     const targetUser = await this.findOne(targetUserId);
 
     if (!this.canModifyUser(currentUserRole, targetUser.role)) {
-      throw new ForbiddenException(
-        'You do not have permission to modify this user',
-      );
+      return {
+        message: 'You do not have permission to modify this user',
+        success: false,
+      };
     }
 
-    return this.userModel
+    const updatedUser = await this.userModel
       .findByIdAndUpdate(targetUserId, { $set: updateUserDto }, { new: true })
       .exec();
+
+    return {
+      message: 'User successfully updated',
+      success: true,
+      user: updatedUser,
+    };
   }
 
-  async delete(currentUserRole: string, targetUserId: string): Promise<User> {
+  async delete(currentUserRole: string, targetUserId: string): Promise<any> {
     const targetUser = await this.findOne(targetUserId);
 
     if (!this.canModifyUser(currentUserRole, targetUser.role)) {
-      throw new ForbiddenException(
-        'You do not have permission to delete this user',
-      );
+      return {
+        message: 'You do not have permission to delete this user',
+        success: false,
+      };
     }
 
-    return this.userModel.findByIdAndDelete(targetUserId).exec();
+    await this.userModel.findByIdAndDelete(targetUserId).exec();
+    return {
+      message: 'User successfully deleted',
+      success: true,
+    };
   }
 
   private canModifyUser(
