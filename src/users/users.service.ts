@@ -33,4 +33,18 @@ export class UsersService {
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
+
+  async update(
+    id: string,
+    updateUserDto: {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+      role?: string;
+    },
+  ): Promise<User> {
+    return this.userModel
+      .findByIdAndUpdate(id, { $set: updateUserDto }, { new: true })
+      .exec();
+  }
 }

@@ -27,11 +27,11 @@ export class AuthService {
   async login(loginDto: { email: string; password: string }) {
     const user = await this.usersService.findByEmail(loginDto.email);
     if (user && (await bcrypt.compare(loginDto.password, user.password))) {
-      return { 
-        message: 'Login successful', 
-        userId: user._id, 
+      return {
+        message: 'Login successful',
+        userId: user._id,
         role: user.role,
-        access_token: this.generateToken(user)
+        access_token: this.generateToken(user),
       };
     }
     throw new UnauthorizedException('Invalid credentials');
@@ -56,7 +56,7 @@ export class AuthService {
 
     return {
       access_token: this.generateToken(newUser),
-      message: 'Register Successful'
+      message: 'Register Successful',
     };
   }
 }
