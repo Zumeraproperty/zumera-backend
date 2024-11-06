@@ -15,19 +15,20 @@ import { UsersService } from './users.service';
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
-
+  
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
-    @Body()
-    createUserDto: {
+    @Request() req,
+    @Body() createUserDto: {
       firstName: string;
       lastName: string;
       email: string;
       password: string;
+      role?: string;
     },
   ) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.create(req.user.role, createUserDto);
   }
 
   @UseGuards(JwtAuthGuard)

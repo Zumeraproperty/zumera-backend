@@ -19,19 +19,47 @@ const roleHierarchy = {
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
+  private canCreateRole(currentUserRole: string, targetRole: string): boolean {
+    const roleHierarchy = {
+      user: ['user'],
+      admin: ['user', 'admin'],
+      moderator: ['user', 'admin', 'moderator'],
+    };
+
+    return roleHierarchy[currentUserRole]?.includes(targetRole) || false;
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.userModel.findOne({ email }).exec();
   }
 
-  async create(createUserDto: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    role?: string;
-  }): Promise<User> {
-    const createdUser = new this.userModel(createUserDto);
-    return createdUser.save();
+  async create(
+    currentUserRole: string,
+    registerDto: {
+      firstName: string;
+      lastName: string;
+      email: string;
+      password: string;
+      role?: string;
+    },
+  ): Promise<any> {
+    const targetRole = registerDto.role || 'user';
+
+    if (!this.canCreateRole(currentUserRole, targetRole)) {
+      return {
+        message: `${currentUserRole} role cannot create ${targetRole} role`,
+        success: false,
+      };
+    }
+
+    const createdUser = new this.userModel(registerDto);
+    await createdUser.save();
+
+    return {
+      message: 'User successfully created',
+      success: true,
+      user: createdUser,
+    };
   }
 
   async findOne(id: string): Promise<User> {
