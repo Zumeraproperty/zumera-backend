@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 
 interface CreateUserDto {
   firstName: string;
@@ -17,25 +18,55 @@ export class UsersService {
 
   private canCreateRole(currentUserRole: string, targetRole: string): boolean {
     const roleHierarchy = {
-      user: ['user'],
-      admin: ['user', 'admin'],
       moderator: ['user', 'admin', 'moderator'],
+      admin: ['user', 'admin'],
+      user: ['user'],
     };
 
     return roleHierarchy[currentUserRole]?.includes(targetRole) || false;
   }
-
-  async create(currentUserRole: string, createUserDto: CreateUserDto) {
-    const targetRole = createUserDto.role || 'user';
-
-    if (!this.canCreateRole(currentUserRole, targetRole)) {
+  async create(authenticatedUserId: string | null, registerDto: RegisterDto) {
+    // For first-time registration
+    const usersCount = await this.userModel.countDocuments();
+    if (usersCount === 0) {
+      const createdUser = new this.userModel({
+        ...registerDto,
+        role: 'moderator',
+      });
+      await createdUser.save();
       return {
-        message: `${currentUserRole} role cannot create ${targetRole} role`,
-        success: false,
+        message: 'First user created as moderator',
+        success: true,
+        user: createdUser,
       };
     }
 
-    const createdUser = new this.userModel(createUserDto);
+    // For regular registration without authentication
+    if (!authenticatedUserId) {
+      const createdUser = new this.userModel({
+        ...registerDto,
+        // role: 'user', // Default role for regular registration
+      });
+      await createdUser.save();
+      return {
+        message: 'User successfully created',
+        success: true,
+        user: createdUser,
+      };
+    }
+
+    // Role-based creation for authenticated users
+    const rolePermissions = {
+      moderator: ['user', 'admin', 'moderator'],
+      admin: ['user', 'admin'],
+      user: ['user'],
+    };
+
+    const targetRole = registerDto.role || 'user';
+    const createdUser = new this.userModel({
+      ...registerDto,
+      role: targetRole,
+    });
     await createdUser.save();
 
     return {

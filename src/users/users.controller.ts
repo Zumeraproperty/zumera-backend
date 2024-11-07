@@ -11,25 +11,16 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
+import { RegisterDto } from 'src/auth/dto/register.dto';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
-  create(
-    @Request() req,
-    @Body()
-    createUserDto: {
-      firstName: string;
-      lastName: string;
-      email: string;
-      password: string;
-      role?: string;
-    },
-  ) {
-    return this.usersService.create(req.user.role, createUserDto);
+  create(@Request() req, @Body() registerDto: RegisterDto) {
+    return this.usersService.create(req.user.userId, registerDto);
   }
 
   @UseGuards(JwtAuthGuard)
