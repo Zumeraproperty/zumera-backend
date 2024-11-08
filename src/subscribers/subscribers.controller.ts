@@ -17,8 +17,7 @@ export class SubscribersController {
 
   @Post()
   async create(@Body() createSubscriberDto: CreateSubscriberDto) {
-    const subscriber =
-      await this.subscribersService.create(createSubscriberDto);
+    const subscriber = await this.subscribersService.create(createSubscriberDto);
     return {
       statusCode: HttpStatus.CREATED,
       message: 'Thank you for subscribing',

@@ -10,41 +10,38 @@ export class SubscribersService {
   private ITEMS_PER_PAGE = 15;
 
   constructor(
-    @InjectModel(Subscriber.name)
-    private subscriberModel: Model<SubscriberDocument>,
+    @InjectModel(Subscriber.name) private subscriberModel: Model<SubscriberDocument>,
     private emailService: EmailService,
   ) {}
 
   async create(createSubscriberDto: CreateSubscriberDto): Promise<any> {
-    // Check if a subscriber with the same email already exists
-    const existingSubscriber = await this.subscriberModel.findOne({
-      email: createSubscriberDto.email,
-    });
+    try {
+      const existingSubscriber = await this.subscriberModel.findOne({
+        email: createSubscriberDto.email,
+      });
 
-    if (existingSubscriber) {
+      if (existingSubscriber) {
+        return {
+          success: false,
+          message: 'This email is already subscribed',
+        };
+      }
+
+      const createdSubscriber = new this.subscriberModel(createSubscriberDto);
+      await this.emailService.sendSubscriberEmail(
+        createSubscriberDto.name,
+        createSubscriberDto.email,
+      );
+      await createdSubscriber.save();
+
       return {
-        success: false,
-        message: 'This email is already subscribed',
+        success: true,
+        message: 'Thank you for Subscribing',
+        subscriber: createdSubscriber,
       };
+    } catch (error) {
+      throw new Error(`Failed to create subscriber: ${error.message}`);
     }
-
-    // Create a new subscriber if no existing one is found
-    const createdSubscriber = new this.subscriberModel(createSubscriberDto);
-
-    // Send a welcome email to the new subscriber
-    await this.emailService.sendSubscriberEmail(
-      createSubscriberDto.name,
-      createSubscriberDto.email,
-    );
-
-    // Save and return the created subscriber
-    await createdSubscriber.save();
-
-    return {
-      success: true,
-      message: 'Subscriber created successfully',
-      subscriber: createdSubscriber,
-    };
   }
 
   async findAll(
