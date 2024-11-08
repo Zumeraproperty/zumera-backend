@@ -15,13 +15,36 @@ export class SubscribersService {
     private emailService: EmailService,
   ) {}
 
-  async create(createSubscriberDto: CreateSubscriberDto): Promise<Subscriber> {
+  async create(createSubscriberDto: CreateSubscriberDto): Promise<any> {
+    // Check if a subscriber with the same email already exists
+    const existingSubscriber = await this.subscriberModel.findOne({
+      email: createSubscriberDto.email,
+    });
+
+    if (existingSubscriber) {
+      return {
+        success: false,
+        message: 'This email is already subscribed',
+      };
+    }
+
+    // Create a new subscriber if no existing one is found
     const createdSubscriber = new this.subscriberModel(createSubscriberDto);
+
+    // Send a welcome email to the new subscriber
     await this.emailService.sendSubscriberEmail(
       createSubscriberDto.name,
       createSubscriberDto.email,
     );
-    return createdSubscriber.save();
+
+    // Save and return the created subscriber
+    await createdSubscriber.save();
+
+    return {
+      success: true,
+      message: 'Subscriber created successfully',
+      subscriber: createdSubscriber,
+    };
   }
 
   async findAll(
