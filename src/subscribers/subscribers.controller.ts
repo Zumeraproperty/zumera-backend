@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
@@ -26,8 +27,8 @@ export class SubscribersController {
   }
 
   @Get()
-  findAll() {
-    return this.subscribersService.findAll();
+  findAll(@Query('page') page: number = 1) {
+    return this.subscribersService.findAll(page);
   }
 
   @Delete(':id')

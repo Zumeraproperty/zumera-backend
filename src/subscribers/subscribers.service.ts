@@ -7,6 +7,8 @@ import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class SubscribersService {
+  private ITEMS_PER_PAGE = 15;
+
   constructor(
     @InjectModel(Subscriber.name)
     private subscriberModel: Model<SubscriberDocument>,
@@ -22,8 +24,26 @@ export class SubscribersService {
     return createdSubscriber.save();
   }
 
-  async findAll(): Promise<Subscriber[]> {
-    return this.subscriberModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(
+    page: number = 1,
+  ): Promise<{ data: Subscriber[]; total: number; pages: number }> {
+    const skip = (page - 1) * this.ITEMS_PER_PAGE;
+
+    const [subscribers, total] = await Promise.all([
+      this.subscriberModel
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(this.ITEMS_PER_PAGE)
+        .exec(),
+      this.subscriberModel.countDocuments(),
+    ]);
+
+    return {
+      data: subscribers,
+      total,
+      pages: Math.ceil(total / this.ITEMS_PER_PAGE),
+    };
   }
 
   async findOne(id: string): Promise<Subscriber> {
