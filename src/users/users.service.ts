@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 
-
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
@@ -103,18 +102,17 @@ export class UsersService {
     };
   }
 
-  async delete(currentUserRole: string, targetUserId: string): Promise<any> {    
+  async delete(currentUserRole: string, targetUserId: string): Promise<any> {
     // Get target user details
     const targetUser = await this.findOne(targetUserId);
 
-  
     if (!this.canModifyUser(currentUserRole, targetUser.role)) {
       return {
         message: 'You do not have permission to delete this user',
         success: false,
       };
     }
-  
+
     await this.userModel.findByIdAndDelete(targetUserId).exec();
     return {
       message: 'User successfully deleted',

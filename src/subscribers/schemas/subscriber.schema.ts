@@ -10,6 +10,9 @@ export class Subscriber {
 
   @Prop({ required: true, unique: true })
   email: string;
+
+  @Prop()
+  createdAt: Date;
 }
 
 export const SubscriberSchema = SchemaFactory.createForClass(Subscriber);
