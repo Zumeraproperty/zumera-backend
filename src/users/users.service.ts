@@ -4,13 +4,6 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 
-interface CreateUserDto {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  role?: string;
-}
 
 @Injectable()
 export class UsersService {
@@ -31,7 +24,7 @@ export class UsersService {
     if (usersCount === 0) {
       const createdUser = new this.userModel({
         ...registerDto,
-        role: 'moderator',
+        role: 'admin',
       });
       await createdUser.save();
       return {
@@ -54,13 +47,6 @@ export class UsersService {
         user: createdUser,
       };
     }
-
-    // Role-based creation for authenticated users
-    const rolePermissions = {
-      moderator: ['user', 'admin', 'moderator'],
-      admin: ['user', 'admin'],
-      user: ['user'],
-    };
 
     const targetRole = registerDto.role || 'user';
     const createdUser = new this.userModel({
