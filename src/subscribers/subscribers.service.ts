@@ -10,7 +10,8 @@ export class SubscribersService {
   private ITEMS_PER_PAGE = 15;
 
   constructor(
-    @InjectModel(Subscriber.name) private subscriberModel: Model<SubscriberDocument>,
+    @InjectModel(Subscriber.name)
+    private subscriberModel: Model<SubscriberDocument>,
     private emailService: EmailService,
   ) {}
 

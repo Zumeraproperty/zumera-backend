@@ -7,6 +7,7 @@ import { EmailService } from '../email/email.service';
 
 @Injectable()
 export class InvestorService {
+  private ITEMS_PER_PAGE = 15;
   constructor(
     @InjectModel(Investor.name)
     private investorModel: Model<Investor>,
@@ -22,8 +23,26 @@ export class InvestorService {
     return createdInvestor.save();
   }
 
-  async findAll(): Promise<Investor[]> {
-    return this.investorModel.find().exec();
+  async findAll(
+    page: number = 1,
+  ): Promise<{ data: Investor[]; total: number; pages: number }> {
+    const skip = (page - 1) * this.ITEMS_PER_PAGE;
+
+    const [subscribers, total] = await Promise.all([
+      this.investorModel
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(this.ITEMS_PER_PAGE)
+        .exec(),
+      this.investorModel.countDocuments(),
+    ]);
+
+    return {
+      data: subscribers,
+      total,
+      pages: Math.ceil(total / this.ITEMS_PER_PAGE),
+    };
   }
 
   async findOne(id: string): Promise<Investor> {
