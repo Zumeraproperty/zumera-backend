@@ -18,8 +18,8 @@ export class UsersService {
 
   private canCreateRole(currentUserRole: string, targetRole: string): boolean {
     const roleHierarchy = {
-      moderator: ['user', 'admin', 'moderator'],
-      admin: ['user', 'admin'],
+      admin: ['user', 'moderator', 'admin'],
+      moderator: ['user', 'moderator'],
       user: ['user'],
     };
 
@@ -31,11 +31,11 @@ export class UsersService {
     if (usersCount === 0) {
       const createdUser = new this.userModel({
         ...registerDto,
-        role: 'moderator',
+        role: 'admin',
       });
       await createdUser.save();
       return {
-        message: 'First user created as moderator',
+        message: 'First user created as admin',
         success: true,
         user: createdUser,
       };
@@ -57,8 +57,8 @@ export class UsersService {
 
     // Role-based creation for authenticated users
     const rolePermissions = {
-      moderator: ['user', 'admin', 'moderator'],
-      admin: ['user', 'admin'],
+      admin: ['user', 'moderator', 'admin'],
+      moderator: ['user', 'moderator'],
       user: ['user'],
     };
 

@@ -27,8 +27,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   private getPermissions(role: string) {
     const permissions = {
-      moderator: ['create', 'read', 'update', 'delete'],
-      admin: ['create', 'read', 'update'],
+      admin: ['create', 'read', 'update', 'delete'],
+      moderator: ['create', 'read', 'update'],
       user: ['read'],
     };
     return permissions[role] || [];
