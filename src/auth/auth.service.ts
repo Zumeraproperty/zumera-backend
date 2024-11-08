@@ -53,7 +53,7 @@ export class AuthService {
     }
 
     const roleHierarchy = {
-      admin: ['user', 'moderator', 'admin'],
+      admin: ['user', 'moderator', 'admin' ],
       moderator: ['user', 'moderator'],
       user: ['user'],
     };
