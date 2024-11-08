@@ -23,7 +23,7 @@ export class SubscribersService {
   }
 
   async findAll(): Promise<Subscriber[]> {
-    return this.subscriberModel.find().exec();
+    return this.subscriberModel.find().sort({ createdAt: -1 }).exec();
   }
 
   async findOne(id: string): Promise<Subscriber> {
