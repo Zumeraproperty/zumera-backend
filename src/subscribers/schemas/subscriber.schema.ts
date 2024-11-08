@@ -3,7 +3,8 @@ import { Document } from 'mongoose';
 
 export type SubscriberDocument = Subscriber & Document;
 
-@Schema()
+
+@Schema({ timestamps: true })
 export class Subscriber {
   @Prop({ required: true })
   name: string;
