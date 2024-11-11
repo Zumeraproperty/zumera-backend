@@ -27,25 +27,36 @@ export class InvestorService {
     page: number = 1,
   ): Promise<{ data: Investor[]; total: number; pages: number }> {
     const ITEMS_PER_PAGE = 15;
-    const skip = (page - 1) * ITEMS_PER_PAGE;
-
-    const [investors, total] = await Promise.all([
-      this.investorModel
-        .find()
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(ITEMS_PER_PAGE)
-        .lean()
-        .exec(),
-      this.investorModel.countDocuments(),
-    ]);
-
-    return {
-      data: investors,
+    const currentPage = parseInt(String(page));
+    const skipDocs = (currentPage - 1) * ITEMS_PER_PAGE;
+  
+    // Get total count first
+    const total = await this.investorModel.countDocuments();
+  
+    // Then get paginated data
+    const data = await this.investorModel
+      .find()
+      .sort({ createdAt: -1 })
+      .skip(skipDocs)
+      .limit(ITEMS_PER_PAGE)
+      .exec();
+  
+    // Log pagination values for verification
+    console.log({
+      currentPage,
+      skipDocs,
+      resultsCount: data.length,
       total,
-      pages: Math.ceil(total / ITEMS_PER_PAGE),
+      shouldReturn: currentPage === 2 ? total - ITEMS_PER_PAGE : ITEMS_PER_PAGE
+    });
+  
+    return {
+      data,
+      total,
+      pages: Math.ceil(total / ITEMS_PER_PAGE)
     };
   }
+  
 
   async findOne(id: string): Promise<Investor> {
     return this.investorModel.findById(id).exec();
