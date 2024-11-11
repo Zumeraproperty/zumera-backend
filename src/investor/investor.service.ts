@@ -28,7 +28,7 @@ export class InvestorService {
   ): Promise<{ data: Investor[]; total: number; pages: number }> {
     const ITEMS_PER_PAGE = 15;
     const skip = (page - 1) * ITEMS_PER_PAGE;
-  
+
     const [investors, total] = await Promise.all([
       this.investorModel
         .find()
@@ -39,15 +39,13 @@ export class InvestorService {
         .exec(),
       this.investorModel.countDocuments(),
     ]);
-  
+
     return {
       data: investors,
       total,
       pages: Math.ceil(total / ITEMS_PER_PAGE),
     };
   }
-  
-  
 
   async findOne(id: string): Promise<Investor> {
     return this.investorModel.findById(id).exec();

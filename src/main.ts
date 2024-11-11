@@ -5,7 +5,15 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors(); // Add this line to enable CORS
+  app.enableCors({
+    origin: [
+      'https://zumera-admin.vercel.app',
+      'https://zumera-admin.vercel.app',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }); // Add this line to enable CORS
 
   const config = new DocumentBuilder()
     .setTitle('Zumera API')
