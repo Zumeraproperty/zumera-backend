@@ -7,9 +7,11 @@ import {
   Delete,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('subscriber')
 export class SubscribersController {
@@ -26,6 +28,7 @@ export class SubscribersController {
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@Query('page') page: number = 1) {
     return this.subscribersService.findAll(page);
