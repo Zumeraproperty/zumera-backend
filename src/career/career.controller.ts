@@ -7,13 +7,16 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { CareerService } from './career.service';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('career')
 export class CareerController {
   constructor(private readonly careerService: CareerService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   async getAllJobs() {
     try {
