@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
 import { InvestorService } from './investor.service';
 import { CreateInvestorDto } from './dto/create-investor.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -14,7 +14,7 @@ export class InvestorController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll() {
-    return this.investorService.findAll();
+  async findAll(@Query('page', ParseIntPipe) page: number = 1) {
+    return this.investorService.findAll(page);
   }
 }
