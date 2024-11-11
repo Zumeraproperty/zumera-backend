@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Query,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
@@ -30,7 +31,7 @@ export class SubscribersController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll(@Query('page') page: number = 1) {
+  async findAll(@Query('page', ParseIntPipe) page: number = 1) {
     return this.subscribersService.findAll(page);
   }
 
