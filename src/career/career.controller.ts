@@ -45,8 +45,11 @@ export class CareerController {
   @Put(':id')
   async updateJob(@Param('id') id: string, @Body() updateData: any) {
     try {
-      await this.careerService.updateJob(id, updateData);
-      return { message: 'Updated successfully' };
+      const updatedJob = await this.careerService.updateJob(id, updateData);
+      return {
+        message: 'Updated successfully',
+        data: updatedJob,
+      };
     } catch (error) {
       throw new HttpException(
         'Internal Server Error',

@@ -30,7 +30,6 @@ export class SalesExecutiveService {
       title: createSalesExecutiveDto.title,
     };
   }
-  
 
   async findAll(): Promise<SalesExecutive[]> {
     return this.salesExecutiveModel.find().exec();

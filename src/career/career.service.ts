@@ -60,9 +60,9 @@ export class CareerService {
   }
 
   async updateJob(id: string, updateData: any) {
-    const options = { new: true }; // This ensures the method returns the updated document
+    const options = { new: true };
 
-    await Promise.all([
+    const results = await Promise.all([
       this.accountingModel.findByIdAndUpdate(id, updateData, options).exec(),
       this.architectureModel.findByIdAndUpdate(id, updateData, options).exec(),
       this.civilModel.findByIdAndUpdate(id, updateData, options).exec(),
@@ -75,6 +75,9 @@ export class CareerService {
         .exec(),
       this.salesModel.findByIdAndUpdate(id, updateData, options).exec(),
     ]);
+
+    // Filter out null results and return the first found updated document
+    return results.find((result) => result !== null);
   }
 
   async findOneJob(id: string) {

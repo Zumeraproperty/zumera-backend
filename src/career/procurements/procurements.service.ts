@@ -30,7 +30,7 @@ export class ProcurementsService {
       title: createProcurementsDto.title,
     };
   }
-  
+
   async findAll(): Promise<Procurements[]> {
     return this.procurementsModel.find().exec();
   }
