@@ -20,12 +20,17 @@ export class SalesExecutiveService {
 
   async create(
     createSalesExecutiveDto: CreateSalesExecutiveDto,
-  ): Promise<SalesExecutive> {
+  ): Promise<{ message: string; title: string }> {
     const createdSalesExecutive = new this.salesExecutiveModel(
       createSalesExecutiveDto,
     );
-    return createdSalesExecutive.save();
+    await createdSalesExecutive.save();
+    return {
+      message: `${createSalesExecutiveDto.title} job created successfully`,
+      title: createSalesExecutiveDto.title,
+    };
   }
+  
 
   async findAll(): Promise<SalesExecutive[]> {
     return this.salesExecutiveModel.find().exec();

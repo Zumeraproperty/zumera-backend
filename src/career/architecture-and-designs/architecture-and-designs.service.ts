@@ -20,11 +20,15 @@ export class ArchitectureAndDesignsService {
 
   async create(
     createArchitectureAndDesignsDto: CreateArchitectureAndDesignsDto,
-  ): Promise<ArchitectureAndDesigns> {
+  ): Promise<{ message: string; title: string }> {
     const createdArchitectureAndDesigns = new this.architectureAndDesignsModel(
       createArchitectureAndDesignsDto,
     );
-    return createdArchitectureAndDesigns.save();
+    await createdArchitectureAndDesigns.save();
+    return {
+      message: `${createArchitectureAndDesignsDto.title} job created successfully`,
+      title: createArchitectureAndDesignsDto.title,
+    };
   }
 
   async findAll(): Promise<ArchitectureAndDesigns[]> {

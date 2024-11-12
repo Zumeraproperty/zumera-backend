@@ -15,9 +15,15 @@ export class HrsService {
     private hrsModel: Model<HrsDocument>,
   ) {}
 
-  async create(createHrsDto: CreateHrsDto): Promise<Hrs> {
+  async create(
+    createHrsDto: CreateHrsDto,
+  ): Promise<{ message: string; title: string }> {
     const createdHrs = new this.hrsModel(createHrsDto);
-    return createdHrs.save();
+    await createdHrs.save();
+    return {
+      message: `${createHrsDto.title} job created successfully`,
+      title: createHrsDto.title,
+    };
   }
 
   async findAll(): Promise<Hrs[]> {

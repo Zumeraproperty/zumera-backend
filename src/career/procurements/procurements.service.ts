@@ -20,13 +20,17 @@ export class ProcurementsService {
 
   async create(
     createProcurementsDto: CreateProcurementsDto,
-  ): Promise<Procurements> {
+  ): Promise<{ message: string; title: string }> {
     const createdProcurements = new this.procurementsModel(
       createProcurementsDto,
     );
-    return createdProcurements.save();
+    await createdProcurements.save();
+    return {
+      message: `${createProcurementsDto.title} job created successfully`,
+      title: createProcurementsDto.title,
+    };
   }
-
+  
   async findAll(): Promise<Procurements[]> {
     return this.procurementsModel.find().exec();
   }

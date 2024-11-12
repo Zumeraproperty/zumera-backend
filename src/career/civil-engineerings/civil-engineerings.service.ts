@@ -20,11 +20,15 @@ export class CivilEngineeringsService {
 
   async create(
     createCivilEngineeringsDto: CreateCivilEngineeringsDto,
-  ): Promise<CivilEngineerings> {
+  ): Promise<{ message: string; title: string }> {
     const createdCivilEngineerings = new this.civilEngineeringsModel(
       createCivilEngineeringsDto,
     );
-    return createdCivilEngineerings.save();
+    await createdCivilEngineerings.save();
+    return {
+      message: `${createCivilEngineeringsDto.title} job created successfully`,
+      title: createCivilEngineeringsDto.title,
+    };
   }
 
   async findAll(): Promise<CivilEngineerings[]> {

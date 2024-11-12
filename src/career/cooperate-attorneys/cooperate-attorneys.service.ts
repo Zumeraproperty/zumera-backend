@@ -20,11 +20,15 @@ export class CooperateAttorneysService {
 
   async create(
     createCooperateAttorneysDto: CreateCooperateAttorneysDto,
-  ): Promise<CooperateAttorneys> {
+  ): Promise<{ message: string; title: string }> {
     const createdCooperateAttorneys = new this.cooperateAttorneysModel(
       createCooperateAttorneysDto,
     );
-    return createdCooperateAttorneys.save();
+    await createdCooperateAttorneys.save();
+    return {
+      message: `${createCooperateAttorneysDto.title} job created successfully`,
+      title: createCooperateAttorneysDto.title,
+    };
   }
 
   async findAll(): Promise<CooperateAttorneys[]> {

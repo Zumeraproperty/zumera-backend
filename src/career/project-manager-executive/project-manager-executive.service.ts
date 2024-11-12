@@ -20,11 +20,17 @@ export class ProjectManagerExecutiveService {
 
   async create(
     createProjectManagerExecutiveDto: CreateProjectManagerExecutiveDto,
-  ): Promise<ProjectManagerExecutive> {
-    const createdProjectManagerExecutive =
-      new this.projectManagerExecutiveModel(createProjectManagerExecutiveDto);
-    return createdProjectManagerExecutive.save();
+  ): Promise<{ message: string; title: string }> {
+    const createdProjectManagerExecutive = new this.projectManagerExecutiveModel(
+      createProjectManagerExecutiveDto,
+    );
+    await createdProjectManagerExecutive.save();
+    return {
+      message: `${createProjectManagerExecutiveDto.title} job created successfully`,
+      title: createProjectManagerExecutiveDto.title,
+    };
   }
+  
 
   async findAll(): Promise<ProjectManagerExecutive[]> {
     return this.projectManagerExecutiveModel.find().exec();

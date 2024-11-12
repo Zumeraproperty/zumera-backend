@@ -15,9 +15,15 @@ export class OperationsService {
     private operationsModel: Model<OperationsDocument>,
   ) {}
 
-  async create(createOperationsDto: CreateOperationsDto): Promise<Operations> {
+  async create(
+    createOperationsDto: CreateOperationsDto,
+  ): Promise<{ message: string; title: string }> {
     const createdOperations = new this.operationsModel(createOperationsDto);
-    return createdOperations.save();
+    await createdOperations.save();
+    return {
+      message: `${createOperationsDto.title} job created successfully`,
+      title: createOperationsDto.title,
+    };
   }
 
   async findAll(): Promise<Operations[]> {
