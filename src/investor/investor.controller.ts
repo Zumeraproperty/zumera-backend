@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Body, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Query,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { InvestorService } from './investor.service';
 import { CreateInvestorDto } from './dto/create-investor.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';

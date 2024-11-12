@@ -20,11 +20,15 @@ export class AccountingAndFinancesService {
 
   async create(
     createAccountingAndFinancesDto: CreateAccountingAndFinancesDto,
-  ): Promise<AccountingAndFinances> {
+  ): Promise<{ message: string; title: string }> {
     const createdAccountingAndFinances = new this.accountingAndFinancesModel(
       createAccountingAndFinancesDto,
     );
-    return createdAccountingAndFinances.save();
+    await createdAccountingAndFinances.save();
+    return {
+      message: `${createAccountingAndFinancesDto.title} job created successfully`,
+      title: createAccountingAndFinancesDto.title,
+    };
   }
 
   async findAll(): Promise<AccountingAndFinances[]> {
