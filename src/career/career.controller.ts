@@ -45,7 +45,7 @@ export class CareerController {
   @Put(':id')
   async updateJob(@Param('id') id: string, @Body() updateData: any) {
     try {
-      await this.careerService.updateJob(id, updateData[id]);
+      await this.careerService.updateJob(id, updateData);
       return { message: 'Updated successfully' };
     } catch (error) {
       throw new HttpException(
