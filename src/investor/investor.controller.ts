@@ -19,7 +19,7 @@ export class InvestorController {
   async create(@Body() createInvestorDto: CreateInvestorDto) {
     return this.investorService.create(createInvestorDto);
   }
-  
+
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(@Query('page', ParseIntPipe) page: number = 1) {

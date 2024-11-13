@@ -29,6 +29,7 @@ export class CareerController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteJob(@Param('id') id: string) {
     try {
@@ -42,6 +43,7 @@ export class CareerController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateJob(@Param('id') id: string, @Body() updateData: any) {
     try {
@@ -58,6 +60,7 @@ export class CareerController {
     }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getJob(@Param('id') id: string) {
     try {
