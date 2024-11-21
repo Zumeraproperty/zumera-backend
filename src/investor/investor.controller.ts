@@ -26,3 +26,4 @@ export class InvestorController {
     return this.investorService.findAll(page);
   }
 }
+

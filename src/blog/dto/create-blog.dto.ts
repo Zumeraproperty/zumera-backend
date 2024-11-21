@@ -1,10 +1,34 @@
+import { IsNotEmpty, IsString, IsOptional, IsArray } from 'class-validator';
+
 export class CreateBlogDto {
-  readonly blogTitle: string;
-  readonly blogText1: string;
-  readonly blogText2?: string;
-  readonly blogText3?: string;
-  readonly blogUrl1?: string;
-  readonly blogUrl2?: string;
-  readonly blogUrl3?: string;
-  readonly cloudinaryUrls?: string[];
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @IsNotEmpty()
+  @IsString()
+  blogText1: string;
+
+  @IsOptional()
+  @IsString()
+  blogText2?: string;
+
+  @IsOptional()
+  @IsString()
+  blogText3?: string;
+
+  @IsOptional()
+  @IsString()
+  blogUrl1?: string;
+
+  @IsOptional()
+  @IsString()
+  blogUrl2?: string;
+
+  @IsOptional()
+  @IsString()
+  blogUrl3?: string;
+
+  @IsArray()
+  cloudinaryUrls?: string[];
 }
